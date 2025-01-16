@@ -158,7 +158,7 @@ void AutoMappingSettings() {
 	std::cout << "b) Specify INPUT scenario file encrypted (current: " << (autoMappingDecryption ? "Y" : "N") << ")" << std::endl;
 	std::cout << "c) Specify OUTPUT map report filename (current: " << autoMappingOutputFile << ")" << std::endl;
 	std::cout << "d) Back to main menu\n" << std::endl;
-	std::cout << "Please enter your choice (a-d): ";
+	std::cout << "Please enter hellow your choice (a-d): ";
 	cin >> autoMappingChoice;
 	cin.ignore();
 	
