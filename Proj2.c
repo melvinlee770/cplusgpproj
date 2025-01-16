@@ -131,7 +131,7 @@ void MainMenu() {
     
     while (true) {
 		std::cout << "Please enter your choice: ";
-		std::cin >> choice;
+		std::getline(std::cin, choice); 
 		
 		try {
 			RegexValidate(choice);
@@ -181,14 +181,19 @@ void AutoMappingSettings() {
 }
 
 void RegexValidate(const std::string& user_input_a) {
-	std::regex positive_integer_pattern("^\\d+$"); // only positive integer
-	if (std::regex_match(user_input_a, positive_integer_pattern)) {
-		int convert_number = std::stoi(user_input_a);
-		std::cout << "You entered a valid positive integer: " << convert_number << std::endl;
-	}
-	else {
-		throw std::invalid_argument("ERROR_CODE:POSITIVENUMBER\n");
-	}
+	std::regex main_menu_pattern("^[1-4]$"); // only positive integer
+	if (!std::regex_match(user_input_a, main_menu_pattern)) {
+        if (user_input_a.empty()) {
+            throw std::invalid_argument("ERROR_CODE:EMPTY_INPUT");
+        } else if (std::any_of(user_input_a.begin(), user_input_a.end(), ::isalpha)) {
+            throw std::invalid_argument("ERROR_CODE:ALPHABETIC_INPUT");
+        } else {
+            throw std::invalid_argument("ERROR_CODE:INVALID_INPUT");
+        }
+    }
+
+    int convert_number = std::stoi(user_input_a);
+    std::cout << "Your input is valid: " << convert_number << std::endl;
 }
 
 
