@@ -1,12 +1,14 @@
 #include "SatComRelay.h" 
 #include "VehData.h"
 #include <iostream>
+#include <regex>
+#include <cstdlib>
 #include <string>
 #include <cmath>
 
 using namespace std;
 
-// Function declarations
+// Main Function declarations
 void DispEnergy();
 void EnergyMenu();
 void ScanMap();
@@ -16,8 +18,10 @@ void TerrainC();
 void MainMenu();
 void AutoMappingSettings();
 
+// Extra Function declarations
+void RegexValidate(const std::string& user_input_a);
+
 int main() {
-    
     
     string srcFilename;
     string encryption;
@@ -112,39 +116,51 @@ void TerrainC() {
 }
 
 void MainMenu() {
-    int choice;
+    std::string choice; // Use a string for input to validate it first
+    int choice_number;
+    
     std::cout << "\nTeam number                : 4" << std::endl;
     std::cout << "Team leader name           : Lwin Moe Aung" << std::endl;
     std::cout << "\n-------------------------------------------------\n" << std::endl;
-    std::cout << "Welcome to Team 4 Group Project\n" << std::endl;
-    std::cout << "1) Configure Autopilot Mapping Exploration settings" << std::endl;
-    std::cout << "2) Configure Terrain Exploration Simulator settings" << std::endl;
-    std::cout << "3) Start Autopilot Mapping!" << std::endl;
+   	std::cout << "Welcome to Team 4 Group Project\n" << std::endl;
+   	std::cout << "1) Configure Autopilot Mapping Exploration settings" << std::endl;
+	std::cout << "2) Configure Terrain Exploration Simulator settings" << std::endl;
+	std::cout << "3) Start Autopilot Mapping!" << std::endl;
     std::cout << "4) Start Simulation!" << std::endl;
-    std::cout << "5) End\n" << std::endl;
-    std::cout << "Please enter your choice: ";
-    cin >> choice;
-    cin.ignore(); // Clear newline from input buffer
-
-    switch (choice) {
-        case 1:
-            AutoMappingSettings();
-            break;
-        case 2:
-            std::cout << "\nConfiguring Terrain Exploration Simulator settings..." << std::endl;
-            break;
-        case 3:
-            std::cout << "\nStarting Autopilot Mapping!" << std::endl;
-            break;
-        case 4:
-            std::cout << "\nStarting Simulation!" << std::endl;
-            break;
-        case 5:
-            std::cout << "\nExiting the program." << std::endl;
-            exit(0);
-        default:
-            std::cout << "\nInvalid choice. Please try again." << std::endl;
+	std::cout << "5) End\n" << std::endl;
+    
+    while (true) {
+		std::cout << "Please enter your choice: ";
+		std::cin >> choice;
+		
+		try {
+			RegexValidate(choice);
+			choice_number = std::stoi(choice);
+			break;
+		} catch(const std::invalid_argument& e) {
+			std::cout << e.what() << std::endl;
+		}
     }
+        // Handle the menu options
+        switch (choice_number) {
+            case 1:
+                std::cout << "\nConfiguring Autopilot Mapping Exploration settings..." << std::endl;
+                break;
+            case 2:
+                std::cout << "\nConfiguring Terrain Exploration Simulator settings..." << std::endl;
+                break;
+            case 3:
+                std::cout << "\nStarting Autopilot Mapping!" << std::endl;
+                break;
+            case 4:
+                std::cout << "\nStarting Simulation!" << std::endl;
+                break;
+            case 5:
+                std::cout << "\nExiting the program." << std::endl;
+                exit(0);
+            default:
+                std::cout << "\nInvalid choice. Please try again." << std::endl;
+        }
 }
 
 void AutoMappingSettings() {
@@ -162,6 +178,17 @@ void AutoMappingSettings() {
 	cin >> autoMappingChoice;
 	cin.ignore();
 	
+}
+
+void RegexValidate(const std::string& user_input_a) {
+	std::regex positive_integer_pattern("^\\d+$"); // only positive integer
+	if (std::regex_match(user_input_a, positive_integer_pattern)) {
+		int convert_number = std::stoi(user_input_a);
+		std::cout << "You entered a valid positive integer: " << convert_number << std::endl;
+	}
+	else {
+		throw std::invalid_argument("ERROR_CODE:POSITIVENUMBER\n");
+	}
 }
 
 
