@@ -19,7 +19,7 @@ void MainMenu();
 void AutoMappingSettings();
 
 // Extra Function declarations
-void RegexValidate(const std::string& user_input_a);
+void RegexValidate(const std::string& user_input, const std::string& pattern);
 
 int main() {
     
@@ -131,10 +131,10 @@ void MainMenu() {
     
     while (true) {
 		std::cout << "Please enter your choice: ";
-		std::getline(std::cin, choice); 
+		std::getline(std::cin, choice); // use getline bec read entire line, including spaces
 		
 		try {
-			RegexValidate(choice);
+			RegexValidate(choice, "^[1-4]$");
 			choice_number = std::stoi(choice);
 			break;
 		} catch(const std::invalid_argument& e) {
@@ -180,20 +180,20 @@ void AutoMappingSettings() {
 	
 }
 
-void RegexValidate(const std::string& user_input_a) {
-	std::regex main_menu_pattern("^[1-4]$"); // only positive integer
-	if (!std::regex_match(user_input_a, main_menu_pattern)) {
-        if (user_input_a.empty()) {
-            throw std::invalid_argument("ERROR_CODE:EMPTY_INPUT");
-        } else if (std::any_of(user_input_a.begin(), user_input_a.end(), ::isalpha)) {
-            throw std::invalid_argument("ERROR_CODE:ALPHABETIC_INPUT");
-        } else {
-            throw std::invalid_argument("ERROR_CODE:INVALID_INPUT");
-        }
+void RegexValidate(const std::string& user_input_a, const std::string& pattern) {
+	//std::regex main_menu_pattern("^[1-4]$"); // only positive integer
+	std::regex regex_pattern(pattern);
+	
+	if (user_input_a.empty()) {
+        throw std::invalid_argument("ERROR_CODE:EMPTY_INPUT\n");
+    }
+	
+	if (!std::regex_match(user_input_a, regex_pattern)) {
+		throw std::invalid_argument("ERROR_CODE:INVALID_INPUT\n");
     }
 
-    int convert_number = std::stoi(user_input_a);
-    std::cout << "Your input is valid: " << convert_number << std::endl;
+    //int convert_number = std::stoi(user_input_a);
+    std::cout << "Your input is valid: " << user_input_a << std::endl;
 }
 
 
