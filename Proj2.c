@@ -1,4 +1,4 @@
-#include "SatComRelay.h" 
+#include "SatComRelay.h"
 #include "VehData.h"
 #include <iostream>
 #include <regex>
@@ -22,14 +22,14 @@ void AutoMappingSettings();
 void RegexValidate(const std::string& user_input, const std::string& pattern);
 
 int main() {
-    
+
     string srcFilename;
     string encryption;
     string startposition;
     bool fileNeedsDecryption = false;
     bool randomizeStartPosition = false;
     int counter = 0;
-   
+
 
 // Get the scenario file name
     std::cout << "\nPlease enter the scenario file's name: \n";
@@ -118,7 +118,7 @@ void TerrainC() {
 void MainMenu() {
     std::string choice; // Use a string for input to validate it first
     int choice_number;
-    
+
     std::cout << "\nTeam number                : 4" << std::endl;
     std::cout << "Team leader name           : Lwin Moe Aung" << std::endl;
     std::cout << "\n-------------------------------------------------\n" << std::endl;
@@ -128,13 +128,13 @@ void MainMenu() {
 	std::cout << "3) Start Autopilot Mapping!" << std::endl;
     std::cout << "4) Start Simulation!" << std::endl;
 	std::cout << "5) End\n" << std::endl;
-    
+
     while (true) {
 		std::cout << "Please enter your choice: ";
 		std::getline(std::cin, choice); // use getline bec read entire line, including spaces
-		
+
 		try {
-			RegexValidate(choice, "^[1-4]$");
+			RegexValidate(choice, "^[1-5]$");
 			choice_number = std::stoi(choice);
 			break;
 		} catch(const std::invalid_argument& e) {
@@ -177,17 +177,17 @@ void AutoMappingSettings() {
 	std::cout << "Please enter hellow your choice (a-d): ";
 	cin >> autoMappingChoice;
 	cin.ignore();
-	
+
 }
 
 void RegexValidate(const std::string& user_input_a, const std::string& pattern) {
 	//std::regex main_menu_pattern("^[1-4]$"); // only positive integer
 	std::regex regex_pattern(pattern);
-	
+
 	if (user_input_a.empty()) {
         throw std::invalid_argument("ERROR_CODE:EMPTY_INPUT\n");
     }
-	
+
 	if (!std::regex_match(user_input_a, regex_pattern)) {
 		throw std::invalid_argument("ERROR_CODE:INVALID_INPUT\n");
     }
