@@ -188,6 +188,12 @@ void AutoMappingSettings() {
         case 2:
             std::cout << "\nSelect B" << std::endl;
             break;
+        case 3:
+            std::cout << "\nSelect C" << std::endl;
+            break;
+        case 4:
+            std::cout << "\nSelect D" << std::endl;
+            break;    
         default:
             std::cout << "\nInvalid choice. Please try again." << std::endl;
 	}
@@ -195,7 +201,6 @@ void AutoMappingSettings() {
 }
 
 void RegexValidate(const std::string& user_input_a, const std::string& pattern) {
-	//std::regex main_menu_pattern("^[1-4]$"); // only positive integer
 	std::regex regex_pattern(pattern);
 
 	if (user_input_a.empty()) {
@@ -211,17 +216,29 @@ void RegexValidate(const std::string& user_input_a, const std::string& pattern) 
 }
 
 void convertCharToNumber(int numAlphanumerics, int &result) {
-    char input;
-    std::cout << "Enter a character (a to " << static_cast<char>('a' + numAlphanumerics - 1) << "): ";
-    std::cin >> input;
+    std::string input_str;
 
-    // Check if the input character is within the valid range
-    if (input >= 'a' && input < 'a' + numAlphanumerics) {
-        result = input - 'a' + 1; // Store the result
-    } else {
-        std::cout << "Invalid input! Please enter a character between a and "
-                  << static_cast<char>('a' + numAlphanumerics - 1) << "." << std::endl;
-        result = -1; // Indicating an invalid input
+    // Create regex pattern dynamically for the range of allowed characters
+    char start_char = 'a';
+    char end_char = 'a' + numAlphanumerics - 1;
+    std::string pattern = "[" + std::string(1, start_char) + "-" + std::string(1, end_char) + "]";
+
+    while (true) {
+        std::cout << "Enter a character (" << start_char << " to " << end_char << "): ";
+        std::getline(std::cin, input_str); // Read the entire line as input
+
+        try {
+            // Validate input using regex
+            RegexValidate(input_str, pattern);
+
+            // Convert the valid character to a number
+            result = input_str[0] - 'a' + 1;
+            break;
+        } catch (const std::invalid_argument &e) {
+            std::cout << e.what() << std::endl; // Output the error message
+        }
     }
 }
+
+
 
