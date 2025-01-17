@@ -192,7 +192,7 @@ void AutoMappingSettings() {
             std::cout << "\nSelect C" << std::endl;
             break;
         case 4:
-            std::cout << "\nSelect D" << std::endl;
+            MainMenu();
             break;    
         default:
             std::cout << "\nInvalid choice. Please try again." << std::endl;
