@@ -20,6 +20,7 @@ void AutoMappingSettings();
 
 // Extra Function declarations
 void RegexValidate(const std::string& user_input, const std::string& pattern);
+void convertCharToNumber(int numAlphanumerics, int &result);
 
 int main() {
 
@@ -144,7 +145,7 @@ void MainMenu() {
         // Handle the menu options
         switch (choice_number) {
             case 1:
-                std::cout << "\nConfiguring Autopilot Mapping Exploration settings..." << std::endl;
+                AutoMappingSettings();
                 break;
             case 2:
                 std::cout << "\nConfiguring Terrain Exploration Simulator settings..." << std::endl;
@@ -164,19 +165,32 @@ void MainMenu() {
 }
 
 void AutoMappingSettings() {
-	int autoMappingChoice;
 	string autoMappingFile = "default.dat";
 	bool autoMappingDecryption = true;
 	string autoMappingOutputFile = "map-rpt.txt";
+	int totalAlpha = 4;
+	int autoMappingChoice = 0;
+
 
 	std::cout << "\n[Configure Autopilot Mapping Exploration settings]\n" << std::endl;
 	std::cout << "a) Specify INPUT scenario filename (current: " << autoMappingFile << ")" << std::endl;
 	std::cout << "b) Specify INPUT scenario file encrypted (current: " << (autoMappingDecryption ? "Y" : "N") << ")" << std::endl;
 	std::cout << "c) Specify OUTPUT map report filename (current: " << autoMappingOutputFile << ")" << std::endl;
 	std::cout << "d) Back to main menu\n" << std::endl;
-	std::cout << "Please enter hellow your choice (a-d): ";
-	cin >> autoMappingChoice;
-	cin.ignore();
+	
+	convertCharToNumber(totalAlpha, autoMappingChoice);
+    
+    // Handle the menu options
+    switch (autoMappingChoice) {
+    	case 1:
+			std::cout << "\nSelect A" << std::endl;
+            break;
+        case 2:
+            std::cout << "\nSelect B" << std::endl;
+            break;
+        default:
+            std::cout << "\nInvalid choice. Please try again." << std::endl;
+	}
 
 }
 
@@ -196,5 +210,18 @@ void RegexValidate(const std::string& user_input_a, const std::string& pattern) 
     std::cout << "Your input is valid: " << user_input_a << std::endl;
 }
 
+void convertCharToNumber(int numAlphanumerics, int &result) {
+    char input;
+    std::cout << "Enter a character (a to " << static_cast<char>('a' + numAlphanumerics - 1) << "): ";
+    std::cin >> input;
 
+    // Check if the input character is within the valid range
+    if (input >= 'a' && input < 'a' + numAlphanumerics) {
+        result = input - 'a' + 1; // Store the result
+    } else {
+        std::cout << "Invalid input! Please enter a character between a and "
+                  << static_cast<char>('a' + numAlphanumerics - 1) << "." << std::endl;
+        result = -1; // Indicating an invalid input
+    }
+}
 
