@@ -5,17 +5,18 @@
 
 class VehicleDetails {
 public:
-    long thisInitialEnergy;
-    long thisCurrentEnergy;
-    long thisCurrentShieldEnergy;
     int	 thisMapStartX;
     int	 thisMapStartY;
     
     SatComRelay satComRelay;
     VehData vehicleData;
     
+    std::vector<std::vector<char>> map; 
+    
     void PrePareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
     void CreateAndDisplayMap(int horizontal, int vertical);
+    void VehicleScanAndMove();
+    
 };
              
 
@@ -63,7 +64,7 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
     std::cout << "Current Energy: " << vehicleData.getCurrentEnergy() << std::endl;
     std::cout << "Current Shield Energy: " << vehicleData.getCurrentShieldEnergy() << std::endl;
   	
-	std::vector<std::vector<char>> map(vertical, std::vector<char>(horizontal, '.'));
+	map = std::vector<std::vector<char>>(vertical, std::vector<char>(horizontal, '.')); 
 
     // Calculate the center position
     int centerX = horizontal / 2;
@@ -73,24 +74,26 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
 
     // Mark the initial position
     map[centerY][centerX] = 'X';
+    VehicleScanAndMove();
 
     // Print the map
-    /*
     for (const auto& row : map) {
         for (const auto& cell : row) {
             std::cout << " " << cell << " ";
         }
         std::cout << std::endl;
     }
-    */
     
-    // TESTING
-    //vehicleData = satComRelay.moveLeftWest();
-    //char result = satComRelay.scanNorth(vehicleData);
-	//std::cout << "Scanned object to the North: " << result << std::endl;
 }
 
-
+void VehicleDetails::VehicleScanAndMove() {	// use the method of "MEMBER FUNCTION"
+	
+	// TESTING
+    //satComRelay.moveLeftWest();
+    //char result = satComRelay.scanNorth(vehicleData);
+	//std::cout << "Scanned object to the North: " << result << std::endl;
+	
+}
 
 
 
