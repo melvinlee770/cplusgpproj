@@ -2,6 +2,8 @@
 #include <string>
 #include "SatComRelay.h"
 #include <vector>
+#include <fstream>
+#include <cstdio>
 
 class VehicleDetails {
 public:
@@ -15,7 +17,7 @@ public:
     
     void PrePareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
     void CreateAndDisplayMap(int horizontal, int vertical);
-    void VehicleScanAndMove();
+    void CalibrateHorizontal(int centerX, int centerY);
     
 };
              
@@ -30,7 +32,7 @@ int main() {
     int missionType = 1;          
     
     // other settings parameter
-    const int horizontal = 30;
+    const int horizontal = 45;
     const int vertical = 30;              
 
 	vd.PrePareVehicle(srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType);
@@ -45,7 +47,7 @@ void VehicleDetails::PrePareVehicle(const std::string &srcFileName, bool fileNee
 	vehicleData = satComRelay.initializeVehicle(
 		srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType
 	);
-	vehicleData = satComRelay.allocateEnergyToShield(50000);
+	vehicleData = satComRelay.allocateEnergyToShield(80000);
 	/*
 	std::cout << std::endl;
 	std::cout << "##VEHICLE STATUS##" << std::endl;
@@ -73,10 +75,11 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
     thisMapStartY = centerY;
 
     // Mark the initial position
-    map[centerY][centerX] = 'X';
-    VehicleScanAndMove();
+    map[centerY][centerX] = 'S';
+    CalibrateHorizontal(thisMapStartX, thisMapStartY);
 
     // Print the map
+    
     for (const auto& row : map) {
         for (const auto& cell : row) {
             std::cout << " " << cell << " ";
@@ -84,16 +87,64 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
         std::cout << std::endl;
     }
     
+    std::cout << "my location: " <<  thisMapStartX << std::endl;
+    char testResult = satComRelay.scanWest(vehicleData);
+    std::cout << "test: " <<  testResult << std::endl;
+    
 }
 
-void VehicleDetails::VehicleScanAndMove() {	// use the method of "MEMBER FUNCTION"
-	
-	// TESTING
-    //satComRelay.moveLeftWest();
-    //char result = satComRelay.scanNorth(vehicleData);
-	//std::cout << "Scanned object to the North: " << result << std::endl;
+void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the method of "MEMBER FUNCTION"
+	//int centerX = thisMapStartX;
+    //int centerY = thisMapStartY;
+    int tmpHorizontal = 0;
+    
+    std::streambuf* oldCout = std::cout.rdbuf();
+
+    // hide the output to the terminal [START]
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w"); 
+    
+    for (;;) {
+        char scanResult = satComRelay.scanWest(vehicleData);
+
+        if (scanResult != '.') {
+            map[centerY][centerX - 1] = scanResult; 
+            tmpHorizontal++;
+            std::cout << "Scanned Result: " << scanResult << std::endl;
+        }
+
+        if (scanResult == '#') {
+            std::cout << "Stopping as '#' is encountered!" << std::endl;
+            map[centerY][centerX - 1] = scanResult;
+            tmpHorizontal++;
+            break; // Exit 
+        }
+
+        // Move the vehicle west (.moveLeftWest will not update ur location, need add another line)
+        satComRelay.moveLeftWest();
+        centerX -= 1;
+
+        // Avoid run to the boundary of map array
+        if (centerX <= 0) {
+            std::cout << "Vehicle reached the map boundary!" << std::endl;
+            break;
+        }
+    }
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);
+    fclose(stdout);
+    stdout = originalStdout;
+    
+    map[centerY][centerX] = '_';
+    //std::cout << "my location: " << centerX << std::endl;
+    //std::cout << "tmp horizontal: " << tmpHorizontal << std::endl; // include the border
+    thisMapStartX = centerX;
 	
 }
+
 
 
 
