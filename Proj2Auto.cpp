@@ -9,6 +9,7 @@ class VehicleDetails {
 public:
     int	 thisMapStartX;
     int	 thisMapStartY;
+    int	 totalHorizontal;
     
     SatComRelay satComRelay;
     VehData vehicleData;
@@ -99,9 +100,8 @@ void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the 
 	
     int tmpHorizontal = 0;
     
-    std::streambuf* oldCout = std::cout.rdbuf();
-
     // hide the output to the terminal [START]
+    std::streambuf* oldCout = std::cout.rdbuf();
     std::ofstream nullStream("/dev/null"); 
     std::cout.rdbuf(nullStream.rdbuf());
     
@@ -135,9 +135,9 @@ void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the 
         }
     }
     // hide the output to the terminal [FINSIH]
-    std::cout.rdbuf(oldCout);
-    fclose(stdout);
-    stdout = originalStdout;
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on
     
     map[centerY][centerX] = '_';
     //std::cout << "my location: " << centerX << std::endl;
@@ -147,7 +147,51 @@ void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the 
 }
 
 void VehicleDetails::GetTotalHorizontal(int centerX, int centerY){
-	std::cout << "helloworld" << std::endl;
+	
+	/*
+	// hide the output to the terminal [START]
+    std::streambuf* oldCout = std::cout.rdbuf();
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    
+    
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w"); 
+    */
+    /*
+    for (;;) {
+        char scanResult = satComRelay.scanEast(vehicleData);
+
+        if (scanResult != '.') {
+            map[centerY][centerX - 1] = scanResult; 
+            std::cout << "Scanned Result: " << scanResult << std::endl;
+        }
+
+        if (scanResult == '#') {
+            std::cout << "Stopping as '#' is encountered!" << std::endl;
+            map[centerY][centerX - 1] = scanResult;
+            break; // Exit 
+        }
+
+        // Move the vehicle west (.moveLeftWest will not update ur location, need add another line)
+        satComRelay.moveRightEast();
+        centerX -= 1;
+
+        // Avoid run to the boundary of map array
+        if (centerX <= 0) {
+            std::cout << "Vehicle reached the map boundary!" << std::endl;
+            break;
+        }
+    }
+    */
+    /*
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on
+    */
+    char scanResult = satComRelay.scanEast2(vehicleData);
+    std::cout << "Scanned Result: " << scanResult << std::endl;
 }
 
 
