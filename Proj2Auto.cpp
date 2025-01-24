@@ -80,7 +80,7 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
     map[centerY][centerX] = 'S';
     CalibrateHorizontal(thisMapStartX, thisMapStartY);
     GetTotalHorizontal(thisMapStartX, thisMapStartY);
-
+    map[thisMapStartY][thisMapStartX] = '_';
     // Print the map
     
     for (const auto& row : map) {
@@ -89,16 +89,13 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
         }
         std::cout << std::endl;
     }
-    
-    std::cout << "my location: " <<  thisMapStartX << std::endl;
-    char testResult = satComRelay.scanWest(vehicleData);
-    std::cout << "test: " <<  testResult << std::endl;
-    
+   
+    std::cout<< "my Y location:  " << thisMapStartY << std::endl;
+    std::cout << "my X location: " <<  thisMapStartX << std::endl;
+   	std::cout << "total horizontal: " << totalHorizontal << std::endl; // include the border
 }
 
 void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the method of "MEMBER FUNCTION"
-	
-    int tmpHorizontal = 0;
     
     // hide the output to the terminal [START]
     std::streambuf* oldCout = std::cout.rdbuf();
@@ -113,14 +110,12 @@ void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the 
 
         if (scanResult != '.') {
             map[centerY][centerX - 1] = scanResult; 
-            tmpHorizontal++;
             std::cout << "Scanned Result: " << scanResult << std::endl;
         }
 
         if (scanResult == '#') {
             std::cout << "Stopping as '#' is encountered!" << std::endl;
             map[centerY][centerX - 1] = scanResult;
-            tmpHorizontal++;
             break; // Exit 
         }
 
@@ -134,21 +129,23 @@ void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the 
             break;
         }
     }
+    
     // hide the output to the terminal [FINSIH]
     std::cout.rdbuf(oldCout);	// code turn output on 
     fclose(stdout);				// code turn output on
     stdout = originalStdout;	// code turn output on
     
-    map[centerY][centerX] = '_';
+    
+    //map[centerY][centerX] = '_';
     //std::cout << "my location: " << centerX << std::endl;
-    //std::cout << "tmp horizontal: " << tmpHorizontal << std::endl; // include the border
     thisMapStartX = centerX;
 	
 }
 
 void VehicleDetails::GetTotalHorizontal(int centerX, int centerY){
 	
-	/*
+	int tmpHorizontal = 1; // start with 1 because need to cout the "#" at the left side
+	
 	// hide the output to the terminal [START]
     std::streambuf* oldCout = std::cout.rdbuf();
     std::ofstream nullStream("/dev/null"); 
@@ -157,25 +154,29 @@ void VehicleDetails::GetTotalHorizontal(int centerX, int centerY){
     
     FILE* originalStdout = stdout;
     stdout = fopen("/dev/null", "w"); 
-    */
-    /*
+    
+   
     for (;;) {
         char scanResult = satComRelay.scanEast(vehicleData);
 
         if (scanResult != '.') {
-            map[centerY][centerX - 1] = scanResult; 
+            map[centerY][centerX + 1] = scanResult; 
             std::cout << "Scanned Result: " << scanResult << std::endl;
+            tmpHorizontal++;
+            std::cout << "testing: " << tmpHorizontal << std::endl;
         }
 
         if (scanResult == '#') {
             std::cout << "Stopping as '#' is encountered!" << std::endl;
-            map[centerY][centerX - 1] = scanResult;
+            map[centerY][centerX + 1] = scanResult;
+            tmpHorizontal++;
+            std::cout << "testing: " << tmpHorizontal << std::endl;
             break; // Exit 
         }
 
         // Move the vehicle west (.moveLeftWest will not update ur location, need add another line)
         satComRelay.moveRightEast();
-        centerX -= 1;
+        centerX += 1;
 
         // Avoid run to the boundary of map array
         if (centerX <= 0) {
@@ -183,15 +184,18 @@ void VehicleDetails::GetTotalHorizontal(int centerX, int centerY){
             break;
         }
     }
-    */
-    /*
+
+    totalHorizontal = tmpHorizontal;
     // hide the output to the terminal [FINSIH]
+    
     std::cout.rdbuf(oldCout);	// code turn output on 
     fclose(stdout);				// code turn output on
     stdout = originalStdout;	// code turn output on
-    */
-    char scanResult = satComRelay.scanEast2(vehicleData);
-    std::cout << "Scanned Result: " << scanResult << std::endl;
+    
+    
+   	//map[centerY][centerX] = '_';
+   	//std::cout << "tmp horizontal: " << tmpHorizontal << std::endl; // include the border
+   	thisMapStartX = centerX;
 }
 
 
