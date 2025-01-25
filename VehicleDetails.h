@@ -17,6 +17,7 @@ public:
     VehData vehicleData;
 
     std::vector<std::vector<char>> premap;
+    std::vector<std::vector<char>> autoscanmap;
 
     void PrePareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
     void CreateAndDisplayMap(int horizontal, int vertical);
@@ -26,6 +27,8 @@ public:
     void GetTotalVertical(int centerX, int centerY);
     
     void AutoMapping(int horizontal, int vertical);
+    void CornerCheck();
+    
 };
 
 #endif // VEHICLE_DETAILS_H

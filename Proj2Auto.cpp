@@ -33,13 +33,10 @@ int main() {
     
 	vd.CreateAndDisplayMap(horizontal, vertical);
     
-    std::cout << "\nTotal Horizontal Distance(test): " << vd.totalHorizontal << std::endl;
-    std::cout << "Total Vertical Distance(test): " << vd.totalVertical << std::endl;
+    //std::cout << "\nTotal Horizontal Distance(test): " << vd.totalHorizontal << std::endl;
+    //std::cout << "Total Vertical Distance(test): " << vd.totalVertical << std::endl;
     
-    //vd.AutoMapping(vd.totalHorizontal, vd.totalVertical);
-    
-	
-
+    vd.AutoMapping(vd.totalHorizontal, vd.totalVertical);
 
     return 0;
 }

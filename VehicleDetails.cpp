@@ -44,14 +44,12 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
     premap[thisMapStartY][thisMapStartX] = '_';
     // Print the premap
     
-    /*
     for (const auto& row : premap) {
         for (const auto& cell : row) {
             std::cout << " " << cell << " ";
         }
         std::cout << std::endl;
     }
-    */
    
     std::cout<< "my Y location:  " << thisMapStartY << std::endl;
     std::cout << "my X location: " <<  thisMapStartX << std::endl;
@@ -60,11 +58,21 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
    	std::cout << "Current Shield Energy: " << vehicleData.getCurrentShieldEnergy() << std::endl;
 }
 
-/*
-void AutoMapping(int horizontal, int vertical) {
+
+void VehicleDetails::AutoMapping(int horizontal, int vertical) {
+	autoscanmap = std::vector<std::vector<char>>(vertical, std::vector<char>(horizontal, '.')); 
+	CornerCheck();
+	autoscanmap[14][24] = '_'; // starting point
 	
+	
+    for (const auto& row : autoscanmap) {
+        for (const auto& cell : row) {
+            std::cout << " " << cell << " ";
+        }
+        std::cout << std::endl;
+    }
 }
-*/
+
 
 void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the method of "MEMBER FUNCTION"
     
@@ -272,4 +280,21 @@ void VehicleDetails::GetTotalVertical(int centerX, int centerY) {
    	//premap[centerY][centerX] = '_';
    	//std::cout << "tmp horizontal: " << tmpVertical << std::endl; // include the border
    	thisMapStartY = centerY;
+}
+
+void VehicleDetails::CornerCheck() {
+	 char scanResult1 = satComRelay.scanEast(vehicleData);
+	 char scanResult2 = satComRelay.scanSouth(vehicleData);
+	 char scanResult3 = satComRelay.scanSouthEast(vehicleData);
+	 
+	 if (scanResult1 = '#') {
+	 	autoscanmap[14][25] = scanResult1;
+	 	if (scanResult2 = '#') {
+	 		autoscanmap[15][24] = scanResult2;
+	 		if (scanResult3 = '#') {
+	 			autoscanmap[15][25] = scanResult2;
+	 			std::cout << "Currently at bottom right corner (1 unit distance from '#')" << std::endl;
+	 		}
+	 	}
+	 }
 }
