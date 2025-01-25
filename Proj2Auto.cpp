@@ -305,7 +305,7 @@ void VehicleDetails::GetTotalVertical(int centerX, int centerY) {
     
     
    	//map[centerY][centerX] = '_';
-   	//std::cout << "tmp horizontal: " << tmpVertical << std::endl; // include the border
+   	std::cout << "tmp horizontal: " << tmpVertical << std::endl; // include the border
    	thisMapStartY = centerY;
 
 }
