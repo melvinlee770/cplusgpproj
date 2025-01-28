@@ -56,6 +56,26 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
    	std::cout << "total horizontal: " << totalHorizontal << std::endl; // include the border (both)
    	std::cout << "total vertical: " << totalVertical << std::endl; // include the border (both)
    	std::cout << "Current Shield Energy: " << vehicleData.getCurrentShieldEnergy() << std::endl;
+   	
+}
+
+void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType) {
+	
+	/*
+	SecondVehicleData = SecondSatComRelay.initializeVehicle(
+		srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType
+	);
+	//vehicleData = satComRelay.allocateEnergyToShield(80000);
+	
+	std::cout << std::endl;
+	std::cout << "##VEHICLE STATUS##" << std::endl;
+    std::cout << "Initial Energy: " << SecondVehicleData.getInitialEnergy() << std::endl;
+    std::cout << "Current Energy: " << SecondVehicleData.getCurrentEnergy() << std::endl;
+    std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
+    */
+    
+    std::cout << "testing share value: "<< std::endl;
+    
 }
 
 
@@ -68,13 +88,24 @@ void VehicleDetails::AutoMapping(int horizontal, int vertical) {
 	autoscanmap[autoScanStartY][autoScanStartX] = '_'; // starting point (not the hex) vertical = Y; horizontal = x
 	
 	for (int i = 1; i < totalHorizontal-1; i++) {
+		
 		char scanResult_a = satComRelay.scanWest(vehicleData);
 		char scanResult_b = satComRelay.scanSouth(vehicleData);
+		
 		std::cout << "automapping scan result (left) :"<< scanResult_a << std::endl;
-		std::cout << "automapping scan result (bottom) :"<< scanResult_b << std::endl;
 		autoscanmap[autoScanStartY][autoScanStartX-i] = scanResult_a;
+		if (scanResult_a != '#') {
+			satComRelay.moveLeftWest();
+		}
+		else {
+			std::cout << "automapping scan result (bottom) :"<< scanResult_b << std::endl;
+			break;
+		}
+		
+		std::cout << std::endl;
+		std::cout << "automapping scan result (bottom) :"<< scanResult_b << std::endl;
+		std::cout << std::endl;
 		autoscanmap[autoScanStartY+1][autoScanStartX-i] = scanResult_b;
-		satComRelay.moveLeftWest();
 	}
 	
     for (const auto& row : autoscanmap) {

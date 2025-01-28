@@ -6,6 +6,7 @@
 
 int main() {
 	VehicleDetails vd;
+	SecondVehicleDetails svd;
 	
     // parameters for the function
     std::string srcFileName = "/home/student/Downloads/cplusgpproj/Scenes/Scenario06.dat";
@@ -36,7 +37,8 @@ int main() {
     //std::cout << "\nTotal Horizontal Distance(test): " << vd.totalHorizontal << std::endl;
     //std::cout << "Total Vertical Distance(test): " << vd.totalVertical << std::endl;
     
-    vd.AutoMapping(vd.totalHorizontal, vd.totalVertical);
+    svd.SecondPrepareVehicle(srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType);
+    //vd.AutoMapping(vd.totalHorizontal, vd.totalVertical);
 
     return 0;
 }

@@ -26,9 +26,18 @@ public:
     void CalibrateVertical(int centerX, int centerY);
     void GetTotalVertical(int centerX, int centerY);
     
+    
     void AutoMapping(int horizontal, int vertical);
     void CornerCheck();
     
+};
+
+class SecondVehicleDetails {
+public:
+	SatComRelay SecondSatComRelay;
+    VehData SecondVehicleData;
+    
+    void SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
 };
 
 #endif // VEHICLE_DETAILS_H
