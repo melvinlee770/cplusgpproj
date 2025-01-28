@@ -17,7 +17,6 @@ public:
     VehData vehicleData;
 
     std::vector<std::vector<char>> premap;
-    std::vector<std::vector<char>> autoscanmap;
 
     void PrePareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
     void CreateAndDisplayMap(int horizontal, int vertical);
@@ -27,8 +26,8 @@ public:
     void GetTotalVertical(int centerX, int centerY);
     
     
-    void AutoMapping(int horizontal, int vertical);
-    void CornerCheck();
+    //void AutoMapping(int horizontal, int vertical);
+    
     
 };
 
@@ -40,9 +39,11 @@ private:
 public:
 	SatComRelay SecondSatComRelay;
     VehData SecondVehicleData;
+    std::vector<std::vector<char>> autoscanmap;
     SecondVehicleDetails(VehicleDetails &vehicleDetails) : vehicleDetailsRef(vehicleDetails) {}
     
     void SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
+    void CornerCheck();
 };
 
 #endif // VEHICLE_DETAILS_H

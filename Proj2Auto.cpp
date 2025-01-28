@@ -37,7 +37,9 @@ int main() {
     //std::cout << "\nTotal Horizontal Distance(test): " << vd.totalHorizontal << std::endl;
     //std::cout << "Total Vertical Distance(test): " << vd.totalVertical << std::endl;
     
+    
     svd.SecondPrepareVehicle(srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType);
+    svd.CornerCheck();
     //vd.AutoMapping(vd.totalHorizontal, vd.totalVertical);
 
     return 0;

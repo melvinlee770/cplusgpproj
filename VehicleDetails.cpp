@@ -64,7 +64,7 @@ void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, 
 	SecondVehicleData = SecondSatComRelay.initializeVehicle(
 		srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType
 	);
-	//vehicleData = satComRelay.allocateEnergyToShield(80000);
+	SecondVehicleData = SecondSatComRelay.allocateEnergyToShield(80000);
 	
 	std::cout << std::endl;
 	std::cout << "##VEHICLE STATUS##" << std::endl;
@@ -72,11 +72,9 @@ void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, 
     std::cout << "Current Energy: " << SecondVehicleData.getCurrentEnergy() << std::endl;
     std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
     
-    //std::cout << "testing share value: "<< vehicleDetailsRef.totalHorizontal << std::endl;
-    
 }
 
-
+/*
 void VehicleDetails::AutoMapping(int horizontal, int vertical) {
 	int autoScanStartY = totalVertical - 2; // column
 	int autoScanStartX = totalHorizontal - 2; // row
@@ -113,7 +111,7 @@ void VehicleDetails::AutoMapping(int horizontal, int vertical) {
         std::cout << std::endl;
     }
 }
-
+*/
 
 void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the method of "MEMBER FUNCTION"
     
@@ -217,7 +215,6 @@ void VehicleDetails::GetTotalHorizontal(int centerX, int centerY){
 }
 
 void VehicleDetails::CalibrateVertical(int centerX, int centerY) {
-    
     
     // hide the output to the terminal [START]
     std::streambuf* oldCout = std::cout.rdbuf();
@@ -323,7 +320,8 @@ void VehicleDetails::GetTotalVertical(int centerX, int centerY) {
    	thisMapStartY = centerY;
 }
 
-void VehicleDetails::CornerCheck() {
+void SecondVehicleDetails::CornerCheck() {
+	/*
 	 char scanResult1 = satComRelay.scanEast(vehicleData);
 	 char scanResult2 = satComRelay.scanSouth(vehicleData);
 	 char scanResult3 = satComRelay.scanSouthEast(vehicleData);
@@ -338,4 +336,53 @@ void VehicleDetails::CornerCheck() {
 	 		}
 	 	}
 	 }
+	*/
+	
+    // hide the output to the terminal [START]
+    /*
+    std::streambuf* oldCout = std::cout.rdbuf();
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w"); 
+    */
+    
+    for (;;) {
+        char scanResult = SecondSatComRelay.scanWest(SecondVehicleData);
+
+        if (scanResult != '.') {
+            //autoscanmap[centerY][centerX - 1] = scanResult; 
+            std::cout << "Scanned Result: " << scanResult;
+        }
+
+        if (scanResult == '#') {
+            std::cout << "Stopping as '#' is encountered!" << std::endl;
+            //autoscanmap[centerY][centerX - 1] = scanResult;
+            break; // Exit 
+        }
+
+        // Move the vehicle west (.moveLeftWest will not update ur location, need add another line)
+        SecondSatComRelay.moveLeftWest();
+        std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
+        //centerX -= 1;
+
+/*
+        // Avoid run to the boundary of premap array
+        if (centerX <= 0) {
+            std::cout << "Vehicle reached the autoscanmap boundary!" << std::endl;
+            break;
+        }
+        */
+    }
+    
+    /*
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on
+    */
+    
+    //premap[centerY][centerX] = '_';
+    //std::cout << "my location: " << centerX << std::endl;
+    //thisMapStartX = centerX;
 }
