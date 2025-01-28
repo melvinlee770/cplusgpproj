@@ -60,10 +60,22 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
 
 
 void VehicleDetails::AutoMapping(int horizontal, int vertical) {
+	int autoScanStartY = totalVertical - 2; // column
+	int autoScanStartX = totalHorizontal - 2; // row
+
 	autoscanmap = std::vector<std::vector<char>>(vertical, std::vector<char>(horizontal, '.')); 
 	CornerCheck();
-	autoscanmap[14][24] = '_'; // starting point
+	autoscanmap[autoScanStartY][autoScanStartX] = '_'; // starting point (not the hex) vertical = Y; horizontal = x
 	
+	for (int i = 1; i < totalHorizontal-1; i++) {
+		char scanResult_a = satComRelay.scanWest(vehicleData);
+		char scanResult_b = satComRelay.scanSouth(vehicleData);
+		std::cout << "automapping scan result (left) :"<< scanResult_a << std::endl;
+		std::cout << "automapping scan result (bottom) :"<< scanResult_b << std::endl;
+		autoscanmap[autoScanStartY][autoScanStartX-i] = scanResult_a;
+		autoscanmap[autoScanStartY+1][autoScanStartX-i] = scanResult_b;
+		satComRelay.moveLeftWest();
+	}
 	
     for (const auto& row : autoscanmap) {
         for (const auto& cell : row) {
@@ -288,11 +300,11 @@ void VehicleDetails::CornerCheck() {
 	 char scanResult3 = satComRelay.scanSouthEast(vehicleData);
 	 
 	 if (scanResult1 = '#') {
-	 	autoscanmap[14][25] = scanResult1;
+	 	autoscanmap[totalVertical-2][totalHorizontal-1] = scanResult1;
 	 	if (scanResult2 = '#') {
-	 		autoscanmap[15][24] = scanResult2;
+	 		autoscanmap[totalVertical - 1][totalHorizontal - 2] = scanResult2;
 	 		if (scanResult3 = '#') {
-	 			autoscanmap[15][25] = scanResult2;
+	 			autoscanmap[totalVertical - 1][totalHorizontal - 1] = scanResult2;
 	 			std::cout << "Currently at bottom right corner (1 unit distance from '#')" << std::endl;
 	 		}
 	 	}
