@@ -6,7 +6,7 @@
 
 int main() {
 	VehicleDetails vd;
-	SecondVehicleDetails svd;
+	SecondVehicleDetails svd(vd);
 	
     // parameters for the function
     std::string srcFileName = "/home/student/Downloads/cplusgpproj/Scenes/Scenario06.dat";

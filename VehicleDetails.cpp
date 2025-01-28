@@ -61,7 +61,6 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
 
 void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType) {
 	
-	/*
 	SecondVehicleData = SecondSatComRelay.initializeVehicle(
 		srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType
 	);
@@ -72,9 +71,8 @@ void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, 
     std::cout << "Initial Energy: " << SecondVehicleData.getInitialEnergy() << std::endl;
     std::cout << "Current Energy: " << SecondVehicleData.getCurrentEnergy() << std::endl;
     std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
-    */
     
-    std::cout << "testing share value: "<< std::endl;
+    //std::cout << "testing share value: "<< vehicleDetailsRef.totalHorizontal << std::endl;
     
 }
 

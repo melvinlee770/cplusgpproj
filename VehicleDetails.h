@@ -33,9 +33,14 @@ public:
 };
 
 class SecondVehicleDetails {
+
+private:
+    VehicleDetails &vehicleDetailsRef;
+
 public:
 	SatComRelay SecondSatComRelay;
     VehData SecondVehicleData;
+    SecondVehicleDetails(VehicleDetails &vehicleDetails) : vehicleDetailsRef(vehicleDetails) {}
     
     void SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
 };
