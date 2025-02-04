@@ -321,68 +321,56 @@ void VehicleDetails::GetTotalVertical(int centerX, int centerY) {
 }
 
 void SecondVehicleDetails::CornerCheck() {
-	/*
-	 char scanResult1 = satComRelay.scanEast(vehicleData);
-	 char scanResult2 = satComRelay.scanSouth(vehicleData);
-	 char scanResult3 = satComRelay.scanSouthEast(vehicleData);
-	 
-	 if (scanResult1 = '#') {
-	 	autoscanmap[totalVertical-2][totalHorizontal-1] = scanResult1;
-	 	if (scanResult2 = '#') {
-	 		autoscanmap[totalVertical - 1][totalHorizontal - 2] = scanResult2;
-	 		if (scanResult3 = '#') {
-	 			autoscanmap[totalVertical - 1][totalHorizontal - 1] = scanResult2;
-	 			std::cout << "Currently at bottom right corner (1 unit distance from '#')" << std::endl;
-	 		}
-	 	}
-	 }
-	*/
 	
-    // hide the output to the terminal [START]
-    /*
-    std::streambuf* oldCout = std::cout.rdbuf();
-    std::ofstream nullStream("/dev/null"); 
-    std::cout.rdbuf(nullStream.rdbuf());
-    FILE* originalStdout = stdout;
-    stdout = fopen("/dev/null", "w"); 
-    */
+    // Calculate the center position
+    int secondMapHorizontal = vehicleDetailsRef.totalHorizontal;
+    int secondMapVertical = vehicleDetailsRef.totalVertical;
+    
+    
+    //initialise second map
+    secondmap = std::vector<std::vector<char>>(secondMapVertical, std::vector<char>(secondMapHorizontal, '.')); 
+
     
     for (;;) {
         char scanResult = SecondSatComRelay.scanWest(SecondVehicleData);
 
-        if (scanResult != '.') {
+        if (scanResult != '.' && scanResult !='#') {
             //autoscanmap[centerY][centerX - 1] = scanResult; 
             std::cout << "Scanned Result: " << scanResult;
+            SecondSatComRelay.moveLeftWest();
         }
-
         if (scanResult == '#') {
             std::cout << "Stopping as '#' is encountered!" << std::endl;
             //autoscanmap[centerY][centerX - 1] = scanResult;
+            std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
             break; // Exit 
         }
 
-        // Move the vehicle west (.moveLeftWest will not update ur location, need add another line)
-        SecondSatComRelay.moveLeftWest();
         std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
         //centerX -= 1;
-
-/*
-        // Avoid run to the boundary of premap array
-        if (centerX <= 0) {
-            std::cout << "Vehicle reached the autoscanmap boundary!" << std::endl;
-            break;
-        }
-        */
     }
     
-    /*
-    // hide the output to the terminal [FINSIH]
-    std::cout.rdbuf(oldCout);	// code turn output on 
-    fclose(stdout);				// code turn output on
-    stdout = originalStdout;	// code turn output on
-    */
+    for (;;) {
+    	char scanResult = SecondSatComRelay.scanNorth(SecondVehicleData);
+
+        if (scanResult != '.' && scanResult !='#') {
+            //autoscanmap[centerY][centerX - 1] = scanResult; 
+            std::cout << "Scanned Result: " << scanResult;
+            SecondSatComRelay.moveUpNorth();;
+        }
+        if (scanResult == '#') {
+            std::cout << "Stopping as '#' is encountered!" << std::endl;
+            secondmap[0][0] = scanResult;
+            std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
+            break; // Exit 
+        }
+        std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
+    }
     
-    //premap[centerY][centerX] = '_';
-    //std::cout << "my location: " << centerX << std::endl;
-    //thisMapStartX = centerX;
+   	for (const auto& row : secondmap) {
+        for (const auto& cell : row) {
+            std::cout << " " << cell << " ";
+        }
+        std::cout << std::endl;
+    }
 }

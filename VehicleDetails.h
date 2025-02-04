@@ -42,6 +42,8 @@ public:
     std::vector<std::vector<char>> autoscanmap;
     SecondVehicleDetails(VehicleDetails &vehicleDetails) : vehicleDetailsRef(vehicleDetails) {}
     
+    std::vector<std::vector<char>> secondmap;
+    
     void SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
     void CornerCheck();
 };
