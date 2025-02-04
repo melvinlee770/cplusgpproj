@@ -64,7 +64,7 @@ void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, 
 	SecondVehicleData = SecondSatComRelay.initializeVehicle(
 		srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType
 	);
-	SecondVehicleData = SecondSatComRelay.allocateEnergyToShield(80000);
+	SecondVehicleData = SecondSatComRelay.allocateEnergyToShield(150000);
 	
 	std::cout << std::endl;
 	std::cout << "##VEHICLE STATUS##" << std::endl;
@@ -73,45 +73,6 @@ void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, 
     std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
     
 }
-
-/*
-void VehicleDetails::AutoMapping(int horizontal, int vertical) {
-	int autoScanStartY = totalVertical - 2; // column
-	int autoScanStartX = totalHorizontal - 2; // row
-
-	autoscanmap = std::vector<std::vector<char>>(vertical, std::vector<char>(horizontal, '.')); 
-	CornerCheck();
-	autoscanmap[autoScanStartY][autoScanStartX] = '_'; // starting point (not the hex) vertical = Y; horizontal = x
-	
-	for (int i = 1; i < totalHorizontal-1; i++) {
-		
-		char scanResult_a = satComRelay.scanWest(vehicleData);
-		char scanResult_b = satComRelay.scanSouth(vehicleData);
-		
-		std::cout << "automapping scan result (left) :"<< scanResult_a << std::endl;
-		autoscanmap[autoScanStartY][autoScanStartX-i] = scanResult_a;
-		if (scanResult_a != '#') {
-			satComRelay.moveLeftWest();
-		}
-		else {
-			std::cout << "automapping scan result (bottom) :"<< scanResult_b << std::endl;
-			break;
-		}
-		
-		std::cout << std::endl;
-		std::cout << "automapping scan result (bottom) :"<< scanResult_b << std::endl;
-		std::cout << std::endl;
-		autoscanmap[autoScanStartY+1][autoScanStartX-i] = scanResult_b;
-	}
-	
-    for (const auto& row : autoscanmap) {
-        for (const auto& cell : row) {
-            std::cout << " " << cell << " ";
-        }
-        std::cout << std::endl;
-    }
-}
-*/
 
 void VehicleDetails::CalibrateHorizontal(int centerX, int centerY) {	// use the method of "MEMBER FUNCTION"
     
@@ -250,7 +211,6 @@ void VehicleDetails::CalibrateVertical(int centerX, int centerY) {
             break;
         }
     }
-    
    
     // hide the output to the terminal [FINSIH]
     std::cout.rdbuf(oldCout);	// code turn output on 
@@ -326,11 +286,17 @@ void SecondVehicleDetails::CornerCheck() {
     int secondMapHorizontal = vehicleDetailsRef.totalHorizontal;
     int secondMapVertical = vehicleDetailsRef.totalVertical;
     
-    
     //initialise second map
     secondmap = std::vector<std::vector<char>>(secondMapVertical, std::vector<char>(secondMapHorizontal, '.')); 
-
     
+	// hide the output to the terminal [START]
+    std::streambuf* oldCout = std::cout.rdbuf();
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w"); 
+    
+
     for (;;) {
         char scanResult = SecondSatComRelay.scanWest(SecondVehicleData);
 
@@ -360,17 +326,252 @@ void SecondVehicleDetails::CornerCheck() {
         }
         if (scanResult == '#') {
             std::cout << "Stopping as '#' is encountered!" << std::endl;
-            secondmap[0][0] = scanResult;
+            secondmap[0][1] = scanResult;
             std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
             break; // Exit 
         }
         std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
     }
     
+    
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on
+    
+}
+
+
+//horizontal & vertical get data from other function
+//horizontal:26 & vertical:16
+
+void SecondVehicleDetails::TopLeftScanMove(int n, int m) {
+
+	// hide the output to the terminal [START]
+    std::streambuf* oldCout = std::cout.rdbuf();
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w"); 
+	
+	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
+	char scanResult_b = SecondSatComRelay.scanNorthEast(SecondVehicleData);
+	char scanResult_c = SecondSatComRelay.scanWest(SecondVehicleData);
+	std::cout << "##Top Left Corner##"<< std::endl;
+	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
+	secondmap[m][n+1] = scanResult_a;
+	std::cout << "automapping scan result (above) :"<< scanResult_b << std::endl;
+	secondmap[m-1][n-1] = scanResult_b;
+	std::cout << "automapping scan result (left) :"<< scanResult_c << std::endl;
+	secondmap[m][n-1] = scanResult_b;
+			
+	SecondSatComRelay.moveRightEast();
+			
+	char scanResult_d = SecondSatComRelay.scanWest(SecondVehicleData);
+	char scanResult_e = SecondSatComRelay.scanNorth(SecondVehicleData);
+	std::cout << "automapping scan result (left) :"<< scanResult_d << std::endl;
+	secondmap[m][n] = scanResult_d;
+	std::cout << "automapping scan result (above) :"<< scanResult_e<< std::endl; // #
+	secondmap[m-1][n+1] = scanResult_e;	
+
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on	
+
+}
+
+void SecondVehicleDetails::FirstRowLeftScanMove(int n, int m) {
+
+	// hide the output to the terminal [START]
+    std::streambuf* oldCout = std::cout.rdbuf();
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w"); 
+
+	std::cout << "##Normal Scan##"<< std::endl;
+	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
+	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
+	secondmap[m][n+1] = scanResult_a;
+	
+	SecondSatComRelay.moveRightEast();
+	
+	char scanResult_b = SecondSatComRelay.scanNorth(SecondVehicleData);
+	std::cout << "automapping scan result (above) :"<< scanResult_b << std::endl;
+	secondmap[m-1][n+1] = scanResult_b;
+
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on	
+}
+
+void SecondVehicleDetails::TopRightScanMove(int n, int m) {
+
+	// hide the output to the terminal [START]
+    std::streambuf* oldCout = std::cout.rdbuf();
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w"); 
+	
+	std::cout << "##Top Right Corner##"<< std::endl;
+	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
+	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
+	secondmap[m][n+1] = scanResult_a;
+
+	char scanResult_c = SecondSatComRelay.scanNorthEast(SecondVehicleData);
+	std::cout << "automapping scan result (topright) :"<< scanResult_c << std::endl;
+	secondmap[m-1][n+1] = scanResult_a;
+	
+	SecondSatComRelay.moveDownSouth(); // move down to next row
+    
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on	
+}
+
+
+void SecondVehicleDetails::MiddleRightLeftScanMove(int n, int m) {
+
+	// hide the output to the terminal [START]
+    std::streambuf* oldCout = std::cout.rdbuf();
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w"); 
+	
+	// move until the thrid last (not count the boundary)
+	
+	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
+	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
+	secondmap[m][vehicleDetailsRef.totalHorizontal - n] = scanResult_a;
+	
+	SecondSatComRelay.moveLeftWest(); 
+	
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on	
+}
+
+void SecondVehicleDetails::SideRightLeftScanMove(int n, int m) {
+	// hide the output to the terminal [START]
+    std::streambuf* oldCout = std::cout.rdbuf();
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w"); 
+    
+	char scanResult_a = SecondSatComRelay.scanWest(SecondVehicleData);
+	std::cout << "automapping scan result (left) :"<< scanResult_a << std::endl;
+	secondmap[m][(vehicleDetailsRef.totalHorizontal - n)-2] = scanResult_a;
+	
+	char scanResult_b = SecondSatComRelay.scanEast(SecondVehicleData);
+	std::cout << "automapping scan result (right) :"<< scanResult_b << std::endl;
+	secondmap[m][vehicleDetailsRef.totalHorizontal - n] = scanResult_b;
+	
+	SecondSatComRelay.moveRightEast(); 
+	
+	char scanResult_c = SecondSatComRelay.scanWest(SecondVehicleData);
+	std::cout << "automapping scan result (left) :"<< scanResult_c << std::endl;
+	secondmap[m][(vehicleDetailsRef.totalHorizontal - n)-1] = scanResult_c;
+	
+	SecondSatComRelay.moveLeftWest(); 
+	SecondSatComRelay.moveDownSouth(); // move down to next row
+
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on	
+	
+}
+
+void SecondVehicleDetails::MiddleLeftRightScanMove(int n, int m) {
+	
+	// move until the thrid last (not count the boundary)
+	
+	char scanResult_a = SecondSatComRelay.scanWest(SecondVehicleData);
+	std::cout << "automapping scan result (left) :"<< scanResult_a << std::endl;
+	secondmap[m][n-1] = scanResult_a;
+	
+	SecondSatComRelay.moveRightEast(); 
+}
+
+void SecondVehicleDetails::SideLeftRightScanMove(int n, int m) {
+	
+	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
+	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
+	//std::cout << "automapping scan result (right) :"<< n << std::endl;
+	secondmap[m][n+1] = scanResult_a;
+	
+	char scanResult_b = SecondSatComRelay.scanWest(SecondVehicleData);
+	std::cout << "automapping scan result (left) :"<< scanResult_b << std::endl;
+	secondmap[m][n-1] = scanResult_b;
+
+	SecondSatComRelay.moveLeftWest();
+
+	char scanResult_c = SecondSatComRelay.scanEast(SecondVehicleData);
+	std::cout << "automapping scan result (right) :"<< scanResult_c << std::endl;
+	secondmap[m][n] = scanResult_c;
+	
+	SecondSatComRelay.moveRightEast(); 
+	SecondSatComRelay.moveDownSouth(); // move down to next row
+	
+}
+
+void SecondVehicleDetails::AutoMapping() {
+
+	for (int l = 1; l < vehicleDetailsRef.totalVertical; l++ ) {
+		for (int i = 1; i < vehicleDetailsRef.totalHorizontal - 1; i++ ) {
+			if (l == 1) {
+				if (i == 1) {
+					TopLeftScanMove(i,l);
+				}
+				else if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
+					TopRightScanMove(i,l); 
+				}
+				else if (i !=1 && i !=(vehicleDetailsRef.totalHorizontal - 2)) {
+					FirstRowLeftScanMove(i,l);
+				}
+			}
+			else if ( l == 2 ) {
+				if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
+					SideRightLeftScanMove(i,l);
+					break;
+				}
+				//std::cout << i << std::endl;
+				MiddleRightLeftScanMove(i,l);
+			}
+			else if (l == 3) {
+				if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
+				    std::cout << i << std::endl;
+					SideLeftRightScanMove(i,l);
+					break;
+				}
+				MiddleLeftRightScanMove(i,l);
+			}
+		}
+	}
+
+	
+	
    	for (const auto& row : secondmap) {
         for (const auto& cell : row) {
-            std::cout << " " << cell << " ";
+        	   std::cout << " " << cell << " ";
         }
         std::cout << std::endl;
     }
+    
+    std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
 }
+
+
+
+
+
+
+
+
