@@ -64,7 +64,7 @@ void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, 
 	SecondVehicleData = SecondSatComRelay.initializeVehicle(
 		srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType
 	);
-	SecondVehicleData = SecondSatComRelay.allocateEnergyToShield(150000);
+	SecondVehicleData = SecondSatComRelay.allocateEnergyToShield(200000);
 	
 	std::cout << std::endl;
 	std::cout << "##VEHICLE STATUS##" << std::endl;
@@ -553,6 +553,14 @@ void SecondVehicleDetails::AutoMapping() {
 				}
 				MiddleLeftRightScanMove(i,l);
 			}
+			else if ( l == 4 ) {
+				if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
+					SideRightLeftScanMove(i,l);
+					break;
+				}
+				//std::cout << i << std::endl;
+				MiddleRightLeftScanMove(i,l);
+			}
 		}
 	}
 
@@ -564,6 +572,11 @@ void SecondVehicleDetails::AutoMapping() {
         }
         std::cout << std::endl;
     }
+    
+    std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
+    std::cout << "##VEHICLE STATUS##" << std::endl;
+    std::cout << "Initial Energy: " << SecondVehicleData.getInitialEnergy() << std::endl;
+    std::cout << "Current Energy: " << SecondVehicleData.getCurrentEnergy() << std::endl;
     
     std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
 }
