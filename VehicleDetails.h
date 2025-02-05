@@ -42,10 +42,13 @@ public:
     
     void SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
     void CornerCheck();
+    
+    // function for first row 
     void TopLeftScanMove(int n, int m);
     void FirstRowLeftScanMove(int n, int m);
     void TopRightScanMove(int n, int m);
     
+    // function for the row in between first and last row 
     void MiddleRightLeftScanMove(int n, int m);
     void SideRightLeftScanMove(int n, int m);
     void MiddleLeftRightScanMove(int n, int m);

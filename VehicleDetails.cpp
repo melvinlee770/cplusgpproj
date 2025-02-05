@@ -64,7 +64,7 @@ void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, 
 	SecondVehicleData = SecondSatComRelay.initializeVehicle(
 		srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType
 	);
-	SecondVehicleData = SecondSatComRelay.allocateEnergyToShield(200000);
+	SecondVehicleData = SecondSatComRelay.allocateEnergyToShield(400000);
 	
 	std::cout << std::endl;
 	std::cout << "##VEHICLE STATUS##" << std::endl;
@@ -527,7 +527,7 @@ void SecondVehicleDetails::AutoMapping() {
 	for (int l = 1; l < vehicleDetailsRef.totalVertical; l++ ) {
 		for (int i = 1; i < vehicleDetailsRef.totalHorizontal - 1; i++ ) {
 			if (l == 1) {
-				if (i == 1) {
+				if (i == 1) {	// first row 
 					TopLeftScanMove(i,l);
 				}
 				else if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
@@ -537,7 +537,10 @@ void SecondVehicleDetails::AutoMapping() {
 					FirstRowLeftScanMove(i,l);
 				}
 			}
-			else if ( l == 2 ) {
+			else if ( l == vehicleDetailsRef.totalVertical - 1) {	// last row
+				break;
+			}
+			else if ( l % 2 == 0 ) {
 				if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
 					SideRightLeftScanMove(i,l);
 					break;
@@ -545,21 +548,13 @@ void SecondVehicleDetails::AutoMapping() {
 				//std::cout << i << std::endl;
 				MiddleRightLeftScanMove(i,l);
 			}
-			else if (l == 3) {
+			else if (l % 2 != 0) {
 				if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
 				    std::cout << i << std::endl;
 					SideLeftRightScanMove(i,l);
 					break;
 				}
 				MiddleLeftRightScanMove(i,l);
-			}
-			else if ( l == 4 ) {
-				if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
-					SideRightLeftScanMove(i,l);
-					break;
-				}
-				//std::cout << i << std::endl;
-				MiddleRightLeftScanMove(i,l);
 			}
 		}
 	}

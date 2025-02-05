@@ -12,7 +12,7 @@ int main() {
     std::string srcFileName = "/home/student/Downloads/cplusgpproj/Scenes/Scenario06.dat";
     bool fileNeedsDecryption = true;     
     bool randomizeStartPosition = true;         
-    int missionType = 1;          
+    int missionType = 6;          
     
     // other settings parameter
     const int horizontal = 45;
