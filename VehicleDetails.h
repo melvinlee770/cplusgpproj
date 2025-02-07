@@ -38,6 +38,8 @@ public:
     //std::vector<std::vector<char>> autoscanmap;
     SecondVehicleDetails(VehicleDetails &vehicleDetails) : vehicleDetailsRef(vehicleDetails) {}
     
+    int LastRowTrigger;
+    
     std::vector<std::vector<char>> secondmap;
     
     void SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
@@ -53,6 +55,10 @@ public:
     void SideRightLeftScanMove(int n, int m);
     void MiddleLeftRightScanMove(int n, int m);
     void SideLeftRightScanMove(int n, int m);
+    
+    void BottomLeftScanMove(int n, int m);
+    void BottomLeftRightScanMove(int n, int m);
+    void BottomRightScanMove(int n, int m);
     
     void AutoMapping();
 };

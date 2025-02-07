@@ -9,7 +9,7 @@ int main() {
 	SecondVehicleDetails svd(vd);
 	
     // parameters for the function
-    std::string srcFileName = "/home/student/Downloads/cplusgpproj/Scenes/Scenario06.dat";
+    std::string srcFileName = "/home/student/Downloads/cplusgpproj/Scenes/scenarioB.dat";	//Scenario06.dat ; scenarioA.dat; scenarioB.dat
     bool fileNeedsDecryption = true;     
     bool randomizeStartPosition = true;         
     int missionType = 6;          
