@@ -61,6 +61,8 @@ public:
     void BottomRightScanMove(int n, int m);
     
     void AutoMapping();
+    
+    void storeUniqueLetters();
 };
 
 #endif // VEHICLE_DETAILS_H

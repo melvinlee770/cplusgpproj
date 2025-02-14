@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
+#include <unordered_set>
 
 void VehicleDetails::PrePareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType) {
 	
@@ -660,9 +661,8 @@ void SecondVehicleDetails::BottomRightScanMove(int n, int m) {
 }
 
 
-
 void SecondVehicleDetails::AutoMapping() {
-
+    
 	for (int l = 1; l < vehicleDetailsRef.totalVertical; l++ ) {
 		for (int i = 1; i < vehicleDetailsRef.totalHorizontal - 1; i++ ) {
 			if (l == 1) {
@@ -718,21 +718,27 @@ void SecondVehicleDetails::AutoMapping() {
         std::cout << std::endl;
     }
     
-    std::cout << "testing trigger:" << LastRowTrigger << std::endl;
+    //std::cout << "testing trigger:" << LastRowTrigger << std::endl;
     std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
     std::cout << "##VEHICLE STATUS##" << std::endl;
     std::cout << "Initial Energy: " << SecondVehicleData.getInitialEnergy() << std::endl;
     std::cout << "Current Energy: " << SecondVehicleData.getCurrentEnergy() << std::endl;
     std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
-    
-    
-    
+   
 }
 
 
+// Void function to fill the dynamic array with unique letters
+void storeUniqueLetters() {
+	/*
+    std::unordered_set<char> seen; 
+    int count = 0; 
 
-
-
-
-
+    if (seen.find(letters) == seen.end()) {
+    	uniqueLetters[count] = letters;
+        seen.insert(letters);
+	}
+	*/
+    
+}
 

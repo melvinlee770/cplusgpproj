@@ -9,7 +9,7 @@ int main() {
 	SecondVehicleDetails svd(vd);
 	
     // parameters for the function
-    std::string srcFileName = "/home/student/Downloads/cplusgpproj/Scenes/scenarioB.dat";	//Scenario06.dat ; scenarioA.dat; scenarioB.dat
+    std::string srcFileName = "/home/student/Downloads/cplusgpproj/Scenes/Scenario06.dat";	//Scenario06.dat ; scenarioA.dat; scenarioB.dat
     bool fileNeedsDecryption = true;     
     bool randomizeStartPosition = true;         
     int missionType = 6;          
@@ -36,6 +36,8 @@ int main() {
     
     //std::cout << "\nTotal Horizontal Distance(test): " << vd.totalHorizontal << std::endl;
     //std::cout << "Total Vertical Distance(test): " << vd.totalVertical << std::endl;
+    const int size = vd.totalVertical * vd.totalHorizontal; 
+    char* uniqueLetters = new char[size]; 
 
     svd.SecondPrepareVehicle(srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType);
     svd.CornerCheck();
