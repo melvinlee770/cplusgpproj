@@ -40,6 +40,7 @@ public:
     
     int LastRowTrigger;
     
+    std::vector<char> uniqueScans;
     std::vector<std::vector<char>> secondmap;
     
     void SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
@@ -62,7 +63,8 @@ public:
     
     void AutoMapping();
     
-    void storeUniqueLetters();
+    void storeUniqueLetters(char letters);
+    void printArray();
 };
 
 #endif // VEHICLE_DETAILS_H

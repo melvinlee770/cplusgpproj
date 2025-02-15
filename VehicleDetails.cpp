@@ -61,7 +61,8 @@ void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
 }
 
 void SecondVehicleDetails::SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType) {
-	
+
+	uniqueScans.clear();
 	SecondVehicleData = SecondSatComRelay.initializeVehicle(
 		srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType
 	);
@@ -354,32 +355,39 @@ void SecondVehicleDetails::TopLeftScanMove(int n, int m) {
     std::cout.rdbuf(nullStream.rdbuf());
     FILE* originalStdout = stdout;
     stdout = fopen("/dev/null", "w"); 
+   
 	
 	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
 	char scanResult_b = SecondSatComRelay.scanNorthEast(SecondVehicleData);
 	char scanResult_c = SecondSatComRelay.scanWest(SecondVehicleData);
 	std::cout << "##Top Left Corner##"<< std::endl;
 	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
+	storeUniqueLetters(scanResult_a); 
 	secondmap[m][n+1] = scanResult_a;
 	std::cout << "automapping scan result (above) :"<< scanResult_b << std::endl;
+	storeUniqueLetters(scanResult_b); 
 	secondmap[m-1][n-1] = scanResult_b;
 	std::cout << "automapping scan result (left) :"<< scanResult_c << std::endl;
-	secondmap[m][n-1] = scanResult_b;
+	storeUniqueLetters(scanResult_c); 
+	secondmap[m][n-1] = scanResult_c;
 			
 	SecondSatComRelay.moveRightEast();
 			
 	char scanResult_d = SecondSatComRelay.scanWest(SecondVehicleData);
 	char scanResult_e = SecondSatComRelay.scanNorth(SecondVehicleData);
 	std::cout << "automapping scan result (left) :"<< scanResult_d << std::endl;
+	storeUniqueLetters(scanResult_d);
 	secondmap[m][n] = scanResult_d;
 	std::cout << "automapping scan result (above) :"<< scanResult_e<< std::endl; // #
+	storeUniqueLetters(scanResult_e);
 	secondmap[m-1][n+1] = scanResult_e;	
 
+  
     // hide the output to the terminal [FINSIH]
     std::cout.rdbuf(oldCout);	// code turn output on 
     fclose(stdout);				// code turn output on
     stdout = originalStdout;	// code turn output on	
-
+	
 }
 
 void SecondVehicleDetails::FirstRowLeftScanMove(int n, int m) {
@@ -393,12 +401,14 @@ void SecondVehicleDetails::FirstRowLeftScanMove(int n, int m) {
 
 	std::cout << "##Normal Scan##"<< std::endl;
 	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
+	storeUniqueLetters(scanResult_a);
 	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
 	secondmap[m][n+1] = scanResult_a;
 	
 	SecondSatComRelay.moveRightEast();
 	
 	char scanResult_b = SecondSatComRelay.scanNorth(SecondVehicleData);
+	storeUniqueLetters(scanResult_b);
 	std::cout << "automapping scan result (above) :"<< scanResult_b << std::endl;
 	secondmap[m-1][n+1] = scanResult_b;
 
@@ -419,12 +429,14 @@ void SecondVehicleDetails::TopRightScanMove(int n, int m) {
 	
 	std::cout << "##Top Right Corner##"<< std::endl;
 	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
+	storeUniqueLetters(scanResult_a);
 	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
 	secondmap[m][n+1] = scanResult_a;
 
 	char scanResult_c = SecondSatComRelay.scanNorthEast(SecondVehicleData);
+	storeUniqueLetters(scanResult_c);
 	std::cout << "automapping scan result (topright) :"<< scanResult_c << std::endl;
-	secondmap[m-1][n+1] = scanResult_a;
+	secondmap[m-1][n+1] = scanResult_c;
 	
 	SecondSatComRelay.moveDownSouth(); // move down to next row
     
@@ -447,6 +459,7 @@ void SecondVehicleDetails::MiddleRightLeftScanMove(int n, int m) {
 	// move until the thrid last (not count the boundary)
 	
 	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
+	storeUniqueLetters(scanResult_a);
 	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
 	secondmap[m][vehicleDetailsRef.totalHorizontal - n] = scanResult_a;
 	
@@ -467,16 +480,19 @@ void SecondVehicleDetails::SideRightLeftScanMove(int n, int m) {
     stdout = fopen("/dev/null", "w"); 
     
 	char scanResult_a = SecondSatComRelay.scanWest(SecondVehicleData);
+	storeUniqueLetters(scanResult_a);
 	std::cout << "automapping scan result (left) :"<< scanResult_a << std::endl;
 	secondmap[m][(vehicleDetailsRef.totalHorizontal - n)-2] = scanResult_a;
 	
 	char scanResult_b = SecondSatComRelay.scanEast(SecondVehicleData);
+	storeUniqueLetters(scanResult_b);
 	std::cout << "automapping scan result (right) :"<< scanResult_b << std::endl;
 	secondmap[m][vehicleDetailsRef.totalHorizontal - n] = scanResult_b;
 	
 	SecondSatComRelay.moveRightEast(); 
 	
 	char scanResult_c = SecondSatComRelay.scanWest(SecondVehicleData);
+	storeUniqueLetters(scanResult_c);
 	std::cout << "automapping scan result (left) :"<< scanResult_c << std::endl;
 	secondmap[m][(vehicleDetailsRef.totalHorizontal - n)-1] = scanResult_c;
 	
@@ -503,6 +519,7 @@ void SecondVehicleDetails::MiddleLeftRightScanMove(int n, int m) {
     stdout = fopen("/dev/null", "w"); 
 	
 	char scanResult_a = SecondSatComRelay.scanWest(SecondVehicleData);
+	storeUniqueLetters(scanResult_a);
 	std::cout << "automapping scan result (left) :"<< scanResult_a << std::endl;
 	secondmap[m][n-1] = scanResult_a;
 	
@@ -525,17 +542,20 @@ void SecondVehicleDetails::SideLeftRightScanMove(int n, int m) {
     stdout = fopen("/dev/null", "w"); 
 	
 	char scanResult_a = SecondSatComRelay.scanEast(SecondVehicleData);
+	storeUniqueLetters(scanResult_a);
 	std::cout << "automapping scan result (right) :"<< scanResult_a << std::endl;
 	//std::cout << "automapping scan result (right) :"<< n << std::endl;
 	secondmap[m][n+1] = scanResult_a;
 	
 	char scanResult_b = SecondSatComRelay.scanWest(SecondVehicleData);
+	storeUniqueLetters(scanResult_b);
 	std::cout << "automapping scan result (left) :"<< scanResult_b << std::endl;
 	secondmap[m][n-1] = scanResult_b;
 
 	SecondSatComRelay.moveLeftWest();
 
 	char scanResult_c = SecondSatComRelay.scanEast(SecondVehicleData);
+	storeUniqueLetters(scanResult_c);
 	std::cout << "automapping scan result (right) :"<< scanResult_c << std::endl;
 	secondmap[m][n] = scanResult_c;
 	
@@ -561,17 +581,21 @@ void SecondVehicleDetails::BottomLeftScanMove(int n, int m) {
 	
 	if (LastRowTrigger == 1) {
 		char scanResult_a = SecondSatComRelay.scanSouthWest(SecondVehicleData); 
+		storeUniqueLetters(scanResult_a);
 		std::cout << "automapping scan result (bottomleft) :"<< scanResult_a << std::endl;
 		secondmap[m][n-1] = scanResult_a;
 		char scanResult_b = SecondSatComRelay.scanSouth(SecondVehicleData); 
+		storeUniqueLetters(scanResult_b);
 		std::cout << "automapping scan result (bottom) :"<< scanResult_b << std::endl;
 		secondmap[m][n] = scanResult_b;
 	}
 	else if (LastRowTrigger == 0){
 		char scanResult_c = SecondSatComRelay.scanSouthEast(SecondVehicleData); 
+		storeUniqueLetters(scanResult_c);
 		std::cout << "automapping scan result bottomright) :"<< scanResult_c << std::endl;
 		secondmap[m][vehicleDetailsRef.totalHorizontal] = scanResult_c;
 		char scanResult_d = SecondSatComRelay.scanSouth(SecondVehicleData); 
+		storeUniqueLetters(scanResult_d);
 		std::cout << "automapping scan result (bottom) :"<< scanResult_d << std::endl;
 		secondmap[m][vehicleDetailsRef.totalHorizontal-n] = scanResult_d;  
 		/// here
@@ -596,9 +620,11 @@ void SecondVehicleDetails::BottomLeftRightScanMove(int n, int m) {
 	if (LastRowTrigger == 1) {
 		SecondSatComRelay.moveRightEast(); 	
 		char scanResult_c = SecondSatComRelay.scanNorth(SecondVehicleData); 
+		storeUniqueLetters(scanResult_c);
 		std::cout << "automapping scan result (above) :"<< scanResult_c << std::endl;
 	
 		char scanResult_d = SecondSatComRelay.scanSouth(SecondVehicleData); 
+		storeUniqueLetters(scanResult_d);
 		std::cout << "automapping scan result (bottom) :"<< scanResult_d << std::endl;
 		secondmap[m][n] = scanResult_d;
 	}
@@ -608,6 +634,7 @@ void SecondVehicleDetails::BottomLeftRightScanMove(int n, int m) {
 		//std::cout << "automapping scan result (above) :"<< scanResult_c << std::endl;
 	
 		char scanResult_d = SecondSatComRelay.scanSouth(SecondVehicleData); 
+		storeUniqueLetters(scanResult_d);
 		std::cout << "automapping scan result (bottom) :"<< scanResult_d << std::endl;
 		secondmap[m][vehicleDetailsRef.totalHorizontal-n] = scanResult_d;
 	}
@@ -631,25 +658,31 @@ void SecondVehicleDetails::BottomRightScanMove(int n, int m) {
 	if (LastRowTrigger == 1) {
 		SecondSatComRelay.moveRightEast(); 
 		char scanResult_a = SecondSatComRelay.scanSouth(SecondVehicleData); 
+		storeUniqueLetters(scanResult_a);
 		std::cout << "automapping scan result (bottom) :"<< scanResult_a << std::endl;
 		secondmap[m][n] = scanResult_a;
 		char scanResult_b = SecondSatComRelay.scanSouthWest(SecondVehicleData); 
+		storeUniqueLetters(scanResult_b);
 		std::cout << "automapping scan result (bottomright) :"<< scanResult_b << std::endl;
 		secondmap[m][n+1] = scanResult_b;
 	}
 	else if (LastRowTrigger == 0) {
 		char scanResult_a = SecondSatComRelay.scanWest(SecondVehicleData); 
+		storeUniqueLetters(scanResult_a);
 		std::cout << "automapping scan result (left) :"<< scanResult_a << std::endl;
 		//secondmap[m][vehicleDetailsRef.totalHorizontal+1] = scanResult_a;
 		char scanResult_b = SecondSatComRelay.scanSouth(SecondVehicleData); 
+		storeUniqueLetters(scanResult_b);
 		std::cout << "automapping scan result (bottom) :"<< scanResult_b << std::endl;
 		secondmap[m][vehicleDetailsRef.totalHorizontal-n] = scanResult_b;	
 		
 		SecondSatComRelay.moveLeftWest(); 
 		char scanResult_c = SecondSatComRelay.scanSouthWest(SecondVehicleData); 
+		storeUniqueLetters(scanResult_c);
 		std::cout << "automapping scan result (bottomleft) :"<< scanResult_c << std::endl;
 		secondmap[m][vehicleDetailsRef.totalHorizontal-n-2] = scanResult_c;
 		char scanResult_d = SecondSatComRelay.scanSouth(SecondVehicleData);
+		storeUniqueLetters(scanResult_d);
 		std::cout << "automapping scan result (bottom) :"<< scanResult_d << std::endl;
 		secondmap[m][vehicleDetailsRef.totalHorizontal-n-1] = scanResult_c;
 			
@@ -701,7 +734,7 @@ void SecondVehicleDetails::AutoMapping() {
 			}
 			else if (l % 2 != 0) {
 				if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
-				    std::cout << i << std::endl;
+				    //std::cout << i << std::endl;
 					SideLeftRightScanMove(i,l);
 					//std::cout << "testing: "<< l << std::endl;
 					break;
@@ -729,16 +762,22 @@ void SecondVehicleDetails::AutoMapping() {
 
 
 // Void function to fill the dynamic array with unique letters
-void storeUniqueLetters() {
-	/*
-    std::unordered_set<char> seen; 
-    int count = 0; 
+void SecondVehicleDetails::storeUniqueLetters(char letters) {
+    static std::unordered_set<char> seen; // Track unique scan results
 
     if (seen.find(letters) == seen.end()) {
-    	uniqueLetters[count] = letters;
-        seen.insert(letters);
-	}
-	*/
-    
+    	seen.insert(letters);
+        uniqueScans.push_back(letters); // Use push_back() instead
+        std::cout << "push array success" << std::endl;
+    }
+
+}
+
+void SecondVehicleDetails::printArray() {
+	std::cout << "Array contents: ";
+    for (int i = 0; i < uniqueScans.size(); i++) {
+        std::cout << uniqueScans[i] << " ";
+    }
+    std::cout << std::endl;
 }
 
