@@ -43,6 +43,10 @@ public:
     std::vector<char> uniqueScans;
     std::vector<std::vector<char>> secondmap;
     
+    char captureLetter;
+    int tmpCurrentEnergy;
+	int tmpCurrentShield;
+    
     void SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
     void CornerCheck();
     
@@ -64,6 +68,7 @@ public:
     void AutoMapping();
     
     void storeUniqueLetters(char letters);
+    void moveAndCalculate(char scannedLetter);
     void printArray();
 };
 
