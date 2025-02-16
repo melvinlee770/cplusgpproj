@@ -40,7 +40,7 @@ public:
     
     int LastRowTrigger;
     
-    std::vector<char> uniqueScans;
+    std::vector<std::vector<std::string>> uniqueScans;
     std::vector<std::vector<char>> secondmap;
     
     char captureLetter;
@@ -67,8 +67,9 @@ public:
     
     void AutoMapping();
     
-    void storeUniqueLetters(char letters);
-    void moveAndCalculate(char scannedLetter);
+    void calculateData(int CurrmoveEnergy, int CurrshieldEnergy);
+    void collectData(char letters, int moveEnergy, int shieldEnergy);
+    
     void printArray();
 };
 
