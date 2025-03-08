@@ -9,7 +9,7 @@ int main() {
 	SecondVehicleDetails svd(vd);
 	
     // parameters for the function
-    std::string srcFileName = "/home/student/Downloads/cplusgpproj/Scenes/Scenario06.dat";	//Scenario06.dat ; scenarioA.dat; scenarioB.dat
+    std::string srcFileName = "/home/student/Downloads/cplusgpproj/Scenes/MapWW.dat";	//Scenario06.dat ; scenarioA.dat; scenarioB.dat
     bool fileNeedsDecryption = true;     
     bool randomizeStartPosition = true;         
     int missionType = 6;          
@@ -26,13 +26,14 @@ int main() {
     stdout = fopen("/dev/null", "w"); 
     
 	vd.PrePareVehicle(srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType);
+	vd.CreateAndDisplayMap(horizontal, vertical);
 
 	// hide the output to the terminal [FINSIH]
     std::cout.rdbuf(oldCout);	// code turn output on 
     fclose(stdout);				// code turn output on
     stdout = originalStdout;	// code turn output on
     
-	vd.CreateAndDisplayMap(horizontal, vertical);
+	
     
     //std::cout << "\nTotal Horizontal Distance(test): " << vd.totalHorizontal << std::endl;
     //std::cout << "Total Vertical Distance(test): " << vd.totalVertical << std::endl;
