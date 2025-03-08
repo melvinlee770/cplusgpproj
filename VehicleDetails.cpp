@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstdio>
+#include <iomanip>
 #include <unordered_set>
 
 void VehicleDetails::PrePareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType) {
@@ -710,9 +711,9 @@ void SecondVehicleDetails::AutoMapping() {
 			if (l == 1) {
 				if (i == 1) {	// first row 
 					TopLeftScanMove(i,l);
-					std::cout<<captureLetter<<std::endl;
-					std::cout<<tmpCurrentEnergy<<std::endl;
-					std::cout<<tmpCurrentShield<<std::endl;
+					//std::cout<<captureLetter<<std::endl;
+					//std::cout<<tmpCurrentEnergy<<std::endl;
+					//std::cout<<tmpCurrentShield<<std::endl;
 				}
 				else if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
 					TopRightScanMove(i,l); 
@@ -764,6 +765,7 @@ void SecondVehicleDetails::AutoMapping() {
     }
     
     //std::cout << "testing trigger:" << LastRowTrigger << std::endl;
+    std::cout << std::endl;
     std::cout << "##VEHICLE STATUS##" << std::endl;
     std::cout << "Current Energy: " << SecondVehicleData.getCurrentEnergy() << std::endl;
     std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
@@ -771,14 +773,19 @@ void SecondVehicleDetails::AutoMapping() {
 }
 
 void SecondVehicleDetails::printArray() {
-    std::cout << "Stored Data:\n";
+    std::cout << std::left << std::setw(20) << "Terrain Symbol"
+              << std::setw(20) << "Movt Enrg Reqd"
+              << std::setw(20) << "Shld Enrg Reqd" << std::endl;
+    
+    std::cout << std::string(45, '-') << std::endl; // Separator line
+    
     for (const auto& row : uniqueScans) { // Loop through each row
-        std::cout << "[";
-        for (size_t i = 0; i < row.size(); i++) { // Loop through values in row
-            std::cout << row[i];
-            if (i < row.size() - 1) std::cout << "]["; // Format output
+        if (row.size() == 3) { // Ensure row contains 3 elements
+            std::cout << std::left << std::setw(20) << row[0] // Terrain symbol
+                      << std::setw(20) << row[1] // Movement Energy
+                      << std::setw(20) << row[2] // Shield Energy
+                      << std::endl;
         }
-        std::cout << "]\n"; // End of row
     }
 }
 
