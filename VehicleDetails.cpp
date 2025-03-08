@@ -291,15 +291,17 @@ void VehicleDetails::GetTotalVertical(int centerX, int centerY) {
 }
 
 void SecondVehicleDetails::CornerCheck() {
-	
+
     // Calculate the center position
     int secondMapHorizontal = vehicleDetailsRef.totalHorizontal;
     int secondMapVertical = vehicleDetailsRef.totalVertical;
     
+    std::cout << "Initializing second map with size: " << secondMapHorizontal << " x " << secondMapVertical << std::endl;
+  
     //initialise second map
     secondmap = std::vector<std::vector<char>>(secondMapVertical, std::vector<char>(secondMapHorizontal, '.')); 
     
-	// hide the output to the terminal [START]
+    // hide the output to the terminal [START]
     std::streambuf* oldCout = std::cout.rdbuf();
     std::ofstream nullStream("/dev/null"); 
     std::cout.rdbuf(nullStream.rdbuf());

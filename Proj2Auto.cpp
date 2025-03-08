@@ -13,6 +13,7 @@ void RegexValidate(const std::string& user_input, const std::string& pattern);
 void MainMenu();
 void AutoMappingSettings();
 void ConfigTerrExpSet();
+void AutoPilotMenu();
 
 string filenameQuestion();
 bool decrypQuestion();
@@ -30,47 +31,17 @@ std::string RouteReportFile = "route-rpt.txt";
 std::string RouteCriteria = "minimized total energy expenditure";
 std::string VehicleType = "HighLander";
 
-
+std::string srcFileBranch = "/home/vboxuser/Downloads/cplusgpproj/Scenes/";
+int PreMissionType = 6;     
+bool randomizeStartPosition = true; 
+std::string srcFileName = "/home/vboxuser/Downloads/cplusgpproj/Scenes/MapWW.dat";	//home/student/Downloads/cplusgpproj/Scenes/MapWW.dat
+bool PreDecryption = true;     
+bool PreRandomize = true;           
+const int horizontal = 45;
+const int vertical = 30;
+    
 int main() {
-    VehicleDetails vd;
-    SecondVehicleDetails svd(vd);
-	
-    // parameters for the function
-    std::string srcFileName = "/home/vboxuser/Downloads/cplusgpproj/Scenes/MapWW.dat";	//home/student/Downloads/cplusgpproj/Scenes/MapWW.dat
-    bool FirstfileNeedsDecryption = true;     
-    bool FirstrandomizeStartPosition = true;         
-    int missionType = 6;   
-    bool fileNeedsDecryption = true;     
-    bool randomizeStartPosition = true;    
-    
-    // other settings parameter
-    const int horizontal = 45;
-    const int vertical = 30;
-                  
-    // hide the output to the terminal [START]
-    std::streambuf* oldCout = std::cout.rdbuf();
-    std::ofstream nullStream("/dev/null"); 
-    std::cout.rdbuf(nullStream.rdbuf());
-    FILE* originalStdout = stdout;
-    stdout = fopen("/dev/null", "w"); 
-    
-    vd.PrePareVehicle(srcFileName, FirstfileNeedsDecryption, FirstrandomizeStartPosition, missionType);
-    vd.CreateAndDisplayMap(horizontal, vertical);
-    
-    svd.SecondPrepareVehicle(srcFileName, fileNeedsDecryption, randomizeStartPosition, missionType);
-    svd.CornerCheck();
-    
-    // hide the output to the terminal [FINSIH]
-    std::cout.rdbuf(oldCout);	// code turn output on 
-    fclose(stdout);				// code turn output on
-    stdout = originalStdout;	// code turn output on
-    //std::cout << "\nTotal Horizontal Distance(test): " << vd.totalHorizontal << std::endl;
-    //std::cout << "Total Vertical Distance(test): " << vd.totalVertical << std::endl;
-    
-    svd.AutoMapping();
-    std::cout<<std::endl;
-    svd.printArray();
-	
+    MainMenu();
     return 0;
 }
 
@@ -343,6 +314,45 @@ bool boolstartQuestion() {
 }
 
 
+void AutoPilotMenu() {  //marking
+  VehicleDetails vd;
+  SecondVehicleDetails svd(vd);
+  const int horizontal = 45;
+  const int vertical = 30;
+    
+  bool BoolDisplayTerminal;
+  bool BoolStartRun;
+  std::cout << "\n[Start Autopilot Mapping]\n"<< std::endl;
+  std::cout << "INPUT scenario file name = " << ScenarioFile << std::endl;
+  std::cout << "INPUT sceario file encrypted =" << (BoolDecryption ? "Y" : "N") << std::endl;
+  std::cout << "OUTPUT map report filename = " << MapReportFile << std::endl;
+  BoolDisplayTerminal = booldisplayterminalQuestion();
+  BoolStartRun = boolstartQuestion();
+  
+      // hide the output to the terminal [START]
+    std::streambuf* oldCout = std::cout.rdbuf();
+    std::ofstream nullStream("/dev/null"); 
+    std::cout.rdbuf(nullStream.rdbuf());
+    FILE* originalStdout = stdout;
+    stdout = fopen("/dev/null", "w");
+    
+    vd.PrePareVehicle(srcFileName, PreDecryption, PreRandomize, PreMissionType);
+    vd.CreateAndDisplayMap(horizontal, vertical);
+  
+    svd.SecondPrepareVehicle(srcFileBranch+ScenarioFile, BoolDecryption, randomizeStartPosition, PreMissionType);
+    svd.CornerCheck();	
+    
+    // hide the output to the terminal [FINSIH]
+    std::cout.rdbuf(oldCout);	// code turn output on 
+    fclose(stdout);				// code turn output on
+    stdout = originalStdout;	// code turn output on
+
+    svd.AutoMapping();
+    std::cout<<std::endl;
+    svd.printArray();
+}
+
+
 void ConfigTerrExpSet() {
     std::string choice; // Use string for input validation
 
@@ -490,7 +500,7 @@ void MainMenu() {
                 ConfigTerrExpSet();
                 break;
             case 3:
-                cout<<"helloworld"<<endl;
+                AutoPilotMenu();
                 break;
             case 4:
                 std::cout << "\nStarting Simulation!" << std::endl;
