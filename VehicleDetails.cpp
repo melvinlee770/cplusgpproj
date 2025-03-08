@@ -4,6 +4,8 @@
 #include <cstdio>
 #include <iomanip>
 #include <unordered_set>
+#include <chrono>
+#include <ctime>
 
 void VehicleDetails::PrePareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType) {
 	
@@ -23,13 +25,13 @@ void VehicleDetails::PrePareVehicle(const std::string &srcFileName, bool fileNee
 
 void VehicleDetails::CreateAndDisplayMap(int horizontal, int vertical) {
 
-	std::cout << std::endl;
-	std::cout << "##VEHICLE STATUS##" << std::endl;
+    std::cout << std::endl;
+    std::cout << "##VEHICLE STATUS##" << std::endl;
     std::cout << "Initial Energy: " << vehicleData.getInitialEnergy() << std::endl;
     std::cout << "Current Energy: " << vehicleData.getCurrentEnergy() << std::endl;
     std::cout << "Current Shield Energy: " << vehicleData.getCurrentShieldEnergy() << std::endl;
-  	
-	premap = std::vector<std::vector<char>>(vertical, std::vector<char>(horizontal, '.')); 
+    
+    premap = std::vector<std::vector<char>>(vertical, std::vector<char>(horizontal, '.')); 
 
     // Calculate the center position
     int centerX = horizontal / 2;
@@ -706,8 +708,26 @@ void SecondVehicleDetails::BottomRightScanMove(int n, int m) {
 }
 
 
-void SecondVehicleDetails::AutoMapping() {
+std::string SecondVehicleDetails::getFormattedTimestamp() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+    std::tm localTime = *std::localtime(&now_c);
+
+    std::ostringstream oss;
+    oss << std::put_time(&localTime, "%Y-%m-%d %H:%M:%S");
+    return oss.str();
+}
+
+
+void SecondVehicleDetails::AutoMapping(const std::string &srcFileName, bool fileNeedsDecryption, const std::string &srcMapReport) {
+    std::string tmpEndStamp;
     
+    std::cout<<"\nINPUT scenario file name      :"<< srcFileName << std::endl;
+    std::cout<<"INPUT scenario file encrypted :"<< (fileNeedsDecryption ? "Y" : "N")<< std::endl;
+    std::cout<<"OUTPUT map report filename    :"<< srcMapReport << std::endl;
+    std::cout<<std::endl;
+    std::cout<<"Start datetime stamp          :"<<getFormattedTimestamp()<<std::endl;
+
 	for (int l = 1; l < vehicleDetailsRef.totalVertical; l++ ) {
 		for (int i = 1; i < vehicleDetailsRef.totalHorizontal - 1; i++ ) {
 			if (l == 1) {
@@ -758,19 +778,22 @@ void SecondVehicleDetails::AutoMapping() {
 			}
 		}
 	}
-
+	std::cout<<"End datetime stamp            :"<<getFormattedTimestamp()<<std::endl;
+        std::cout<<std::endl;
+        std::cout<<"Total Mapping Duration        :"<<std::endl;
+        std::cout<<std::endl;
+        
    	for (const auto& row : secondmap) {
         for (const auto& cell : row) {
         	   std::cout << " " << cell << " ";
         }
         std::cout << std::endl;
     }
-    
     //std::cout << "testing trigger:" << LastRowTrigger << std::endl;
     std::cout << std::endl;
-    std::cout << "##VEHICLE STATUS##" << std::endl;
-    std::cout << "Current Energy: " << SecondVehicleData.getCurrentEnergy() << std::endl;
-    std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
+    //std::cout << "##VEHICLE STATUS##" << std::endl;
+    //std::cout << "Current Energy: " << SecondVehicleData.getCurrentEnergy() << std::endl;
+    //std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
    
 }
 

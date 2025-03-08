@@ -33,7 +33,7 @@ private:
     VehicleDetails &vehicleDetailsRef;
 
 public:
-	SatComRelay SecondSatComRelay;
+    SatComRelay SecondSatComRelay;
     VehData SecondVehicleData;
     //std::vector<std::vector<char>> autoscanmap;
     SecondVehicleDetails(VehicleDetails &vehicleDetails) : vehicleDetailsRef(vehicleDetails) {}
@@ -45,7 +45,7 @@ public:
     
     char captureLetter;
     int tmpCurrentEnergy;
-	int tmpCurrentShield;
+    int tmpCurrentShield;
     
     void SecondPrepareVehicle(const std::string &srcFileName, bool fileNeedsDecryption, bool randomizeStartPosition, int missionType);
     void CornerCheck();
@@ -65,12 +65,12 @@ public:
     void BottomLeftRightScanMove(int n, int m);
     void BottomRightScanMove(int n, int m);
     
-    void AutoMapping();
+    void AutoMapping(const std::string &srcFileName, bool fileNeedsDecryption, const std::string &srcMapReport);
+    void printArray();
     
     void calculateData(int CurrmoveEnergy, int CurrshieldEnergy);
     void collectData(char letters, int moveEnergy, int shieldEnergy);
-    
-    void printArray();
+    std::string getFormattedTimestamp();
 };
 
 #endif // VEHICLE_DETAILS_H

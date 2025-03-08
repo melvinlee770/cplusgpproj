@@ -347,7 +347,7 @@ void AutoPilotMenu() {  //marking
     fclose(stdout);				// code turn output on
     stdout = originalStdout;	// code turn output on
 
-    svd.AutoMapping();
+    svd.AutoMapping(ScenarioFile, BoolDecryption, MapReportFile);
     std::cout<<std::endl;
     svd.printArray();
 }
