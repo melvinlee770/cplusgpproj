@@ -783,9 +783,18 @@ void SecondVehicleDetails::AutoMapping(const std::string &srcFileName, bool file
         std::cout<<"Total Mapping Duration        :"<<std::endl;
         std::cout<<std::endl;
         
-   	for (const auto& row : secondmap) {
-        for (const auto& cell : row) {
-        	   std::cout << " " << cell << " ";
+        std::cout << "   "; // Space for row numbers
+        for (int col = 0; col < vehicleDetailsRef.totalHorizontal; ++col) {
+          std::cout << std::setw(2) << col << " ";
+        }
+        std::cout << std::endl;
+        
+    for (int l = 0; l < vehicleDetailsRef.totalVertical; l++) {
+        // ✅ Print Row Number before each row
+        std::cout << std::setw(2) << l << " "; // Row number aligned properly
+
+        for (int i = 0; i < vehicleDetailsRef.totalHorizontal; i++) {
+            std::cout << " " << secondmap[l][i] << " ";
         }
         std::cout << std::endl;
     }
