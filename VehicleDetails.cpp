@@ -722,105 +722,102 @@ std::string SecondVehicleDetails::getFormattedTimestamp() {
 void SecondVehicleDetails::AutoMapping(const std::string &srcFileName, bool fileNeedsDecryption, const std::string &srcMapReport) {
     std::string tmpEndStamp;
     
-    std::cout<<"\nINPUT scenario file name      :"<< srcFileName << std::endl;
-    std::cout<<"INPUT scenario file encrypted :"<< (fileNeedsDecryption ? "Y" : "N")<< std::endl;
-    std::cout<<"OUTPUT map report filename    :"<< srcMapReport << std::endl;
-    std::cout<<std::endl;
-    std::cout<<"Start datetime stamp          :"<<getFormattedTimestamp()<<std::endl;
+    std::ofstream outFile(srcMapReport);
+    if (!outFile) {
+      std::cerr << "Error: Could not open file for writing!" << std::endl;
+      return;
+    }
+    std::ostream& out = outFile;
+    
+    out<<"\nINPUT scenario file name      :"<< srcFileName << std::endl;
+    out<<"INPUT scenario file encrypted :"<< (fileNeedsDecryption ? "Y" : "N")<< std::endl;
+    out<<"OUTPUT map report filename    :"<< srcMapReport << std::endl;
+    out<<std::endl;
+    out<<"Start datetime stamp          :"<<getFormattedTimestamp()<<std::endl;
 
-	for (int l = 1; l < vehicleDetailsRef.totalVertical; l++ ) {
-		for (int i = 1; i < vehicleDetailsRef.totalHorizontal - 1; i++ ) {
-			if (l == 1) {
-				if (i == 1) {	// first row 
-					TopLeftScanMove(i,l);
-					//std::cout<<captureLetter<<std::endl;
-					//std::cout<<tmpCurrentEnergy<<std::endl;
-					//std::cout<<tmpCurrentShield<<std::endl;
-				}
-				else if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
-					TopRightScanMove(i,l); 
-				}
-				else if (i !=1 && i !=(vehicleDetailsRef.totalHorizontal - 2)) {
-					FirstRowLeftScanMove(i,l);
-				}
-			}
-			else if ( l == vehicleDetailsRef.totalVertical - 1) {	// last row
-				if (LastRowTrigger == 1 || LastRowTrigger == 0) {
-					if (i == 1) {
-						BottomLeftScanMove(i,l);
-					}
-					else if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
-						BottomRightScanMove(i,l); 
-					}
-					else if (i !=1 && i !=(vehicleDetailsRef.totalHorizontal - 2)) {
-						//std::cout << "test" << std::endl;
-						BottomLeftRightScanMove(i, l);
-					}
-				}  	
-			}
-			else if ( l % 2 == 0) {
-				if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
-					SideRightLeftScanMove(i,l);
-					//std::cout<< "another:" << l << std::endl;
-					break;
-				}
-				//std::cout << i << std::endl;
-				MiddleRightLeftScanMove(i,l);
-			}
-			else if (l % 2 != 0) {
-				if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
-				    //std::cout << i << std::endl;
-					SideLeftRightScanMove(i,l);
-					//std::cout << "testing: "<< l << std::endl;
-					break;
-				}
-				MiddleLeftRightScanMove(i,l);
-			}
-		}
+    for (int l = 1; l < vehicleDetailsRef.totalVertical; l++ ) {
+      for (int i = 1; i < vehicleDetailsRef.totalHorizontal - 1; i++ ) {
+        if (l == 1) {
+	  if (i == 1) {	// first row 
+	    TopLeftScanMove(i,l);
+	  }
+          else if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
+            TopRightScanMove(i,l); 
+          }
+          else if (i !=1 && i !=(vehicleDetailsRef.totalHorizontal - 2)) {
+            FirstRowLeftScanMove(i,l);
+	  }
 	}
-	std::cout<<"End datetime stamp            :"<<getFormattedTimestamp()<<std::endl;
-        std::cout<<std::endl;
-        std::cout<<"Total Mapping Duration        :"<<std::endl;
-        std::cout<<std::endl;
-        
-        std::cout << "   "; // Space for row numbers
-        for (int col = 0; col < vehicleDetailsRef.totalHorizontal; ++col) {
-          std::cout << std::setw(2) << col << " ";
+        else if ( l == vehicleDetailsRef.totalVertical - 1) {	// last row
+	  if (LastRowTrigger == 1 || LastRowTrigger == 0) {
+	    if (i == 1) {
+	      BottomLeftScanMove(i,l);
+	    }
+            else if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
+	      BottomRightScanMove(i,l); 
+	    }
+	    else if (i !=1 && i !=(vehicleDetailsRef.totalHorizontal - 2)) {
+	      //std::cout << "test" << std::endl;
+	      BottomLeftRightScanMove(i, l);
+	    }
+	  }  	
+	}
+    	else if ( l % 2 == 0) {
+	  if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
+	    SideRightLeftScanMove(i,l);
+	    //std::cout<< "another:" << l << std::endl;
+	    break;
+	  }
+	  //std::cout << i << std::endl;
+	  MiddleRightLeftScanMove(i,l);
+	}
+	else if (l % 2 != 0) {
+	  if (i == (vehicleDetailsRef.totalHorizontal - 2)) {
+	    //std::cout << i << std::endl;
+	    SideLeftRightScanMove(i,l);
+	    //std::cout << "testing: "<< l << std::endl;
+	    break;
+	  }
+        MiddleLeftRightScanMove(i,l);
         }
-        std::cout << std::endl;
+      }
+    }
+    out<<"End datetime stamp            :"<<getFormattedTimestamp()<<std::endl;
+    out<<std::endl;
+    out<<"Total Mapping Duration        :"<<std::endl;
+    out<<std::endl;
+        
+    out << "   "; // Space for row numbers
+    for (int col = 0; col < vehicleDetailsRef.totalHorizontal; ++col) {
+      out << std::setw(2) << col << " ";
+    }
+    out << std::endl;
         
     for (int l = 0; l < vehicleDetailsRef.totalVertical; l++) {
-        // ✅ Print Row Number before each row
-        std::cout << std::setw(2) << l << " "; // Row number aligned properly
+        out << std::setw(2) << l << " "; // Row number aligned properly
 
         for (int i = 0; i < vehicleDetailsRef.totalHorizontal; i++) {
-            std::cout << " " << secondmap[l][i] << " ";
+            out << " " << secondmap[l][i] << " ";
         }
-        std::cout << std::endl;
+        out << std::endl;
     }
-    //std::cout << "testing trigger:" << LastRowTrigger << std::endl;
-    std::cout << std::endl;
-    //std::cout << "##VEHICLE STATUS##" << std::endl;
-    //std::cout << "Current Energy: " << SecondVehicleData.getCurrentEnergy() << std::endl;
-    //std::cout << "Current Shield Energy: " << SecondVehicleData.getCurrentShieldEnergy() << std::endl;
-   
-}
+    out << std::endl;
 
-void SecondVehicleDetails::printArray() {
-    std::cout << std::left << std::setw(20) << "Terrain Symbol"
+    out << std::left << std::setw(20) << "Terrain Symbol"
               << std::setw(20) << "Movt Enrg Reqd"
               << std::setw(20) << "Shld Enrg Reqd" << std::endl;
-    
-    std::cout << std::string(45, '-') << std::endl; // Separator line
+    out << std::string(45, '-') << std::endl; // Separator line
     
     for (const auto& row : uniqueScans) { // Loop through each row
         if (row.size() == 3) { // Ensure row contains 3 elements
-            std::cout << std::left << std::setw(20) << row[0] // Terrain symbol
+            out << std::left<< "'"<<row[0] <<std::setw(18) <<"'"  // Terrain symbol
                       << std::setw(20) << row[1] // Movement Energy
                       << std::setw(20) << row[2] // Shield Energy
                       << std::endl;
         }
     }
+    outFile.close();
+    std::cout << "Output successfully saved to '"<< srcMapReport <<"'!" << std::endl;
 }
 
 void SecondVehicleDetails::calculateData(int CurrmoveEnergy, int CurrshieldEnergy) {

@@ -349,7 +349,7 @@ void AutoPilotMenu() {  //marking
 
     svd.AutoMapping(ScenarioFile, BoolDecryption, MapReportFile);
     std::cout<<std::endl;
-    svd.printArray();
+    //svd.printArray();
 }
 
 
