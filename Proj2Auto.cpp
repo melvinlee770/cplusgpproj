@@ -336,7 +336,7 @@ void AutoPilotMenu() {  //marking
     FILE* originalStdout = stdout;
     stdout = fopen("/dev/null", "w");
     
-    vd.PrePareVehicle(srcFileName, PreDecryption, PreRandomize, PreMissionType);
+    vd.PrePareVehicle(srcFileBranch+ScenarioFile, PreDecryption, PreRandomize, PreMissionType);
     vd.CreateAndDisplayMap(horizontal, vertical);
   
     svd.SecondPrepareVehicle(srcFileBranch+ScenarioFile, BoolDecryption, randomizeStartPosition, PreMissionType);
