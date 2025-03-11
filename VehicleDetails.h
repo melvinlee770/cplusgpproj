@@ -71,7 +71,7 @@ public:
     void calculateData(int CurrmoveEnergy, int CurrshieldEnergy);
     void collectData(char letters, int moveEnergy, int shieldEnergy);
     std::string getFormattedTimestamp();
-    //vector<string> loadMap(const string &filename);
+
 };
 
 #endif // VEHICLE_DETAILS_H

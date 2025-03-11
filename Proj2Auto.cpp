@@ -6,8 +6,17 @@
 #include <fstream>
 #include <regex>
 #include <cstdlib>
+#include <queue>
 #include <cmath>
 using namespace std;
+
+struct Node {
+    int x, y, dist;
+};
+const int dx[] = {-1, 1, 0, 0};
+const int dy[] = {0, 0, -1, 1};
+const string WHITE_BG = "\033[47m";  // White background
+const string RESET = "\033[0m";       // Reset color
 
 void RegexValidate(const std::string& user_input, const std::string& pattern);
 void MainMenu();
@@ -27,7 +36,6 @@ bool boolstartQuestion();
 vector<string> loadMap(const string &filename);
 vector<string> presimulatemap;
 vector<string> simulatemap;
-void printMap(const vector<string> &presimulatemap);
 
 std::string ScenarioFile = "default.dat";
 bool BoolDecryption = true;
@@ -365,9 +373,12 @@ vector<string> extractMap(const string &filename) {
 }
 
 
-void printMap(const vector<string> &presimulatemap) {
-    for (const string &row : presimulatemap) {
-        cout << " " << row << " "<<endl;
+void printMap(const vector<string> &simulatemap) {
+    for (const string &row : simulatemap) {
+      for (char cell : row) {
+        std::cout << cell;
+      }
+      std::cout << endl;
     }
 }
 
@@ -419,6 +430,153 @@ void printCharacterLocations(const vector<string> &mapData, char target) {
     }
     cout << endl; // Add space for readability
 }
+
+
+int findShortestPath(vector<string> &simulatemap) {
+    int rows = simulatemap.size();
+    int cols = simulatemap[0].size();
+    
+    // found and locate sll the "S" & "E"
+    vector<pair<int, int>> starts, ends;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (simulatemap[i][j] == 'S') starts.push_back({i, j});
+            if (simulatemap[i][j] == 'E') ends.push_back({i, j});
+        }
+    }
+
+    // BFS Queue (x, y, distance)
+    queue<Node> q;
+    vector<vector<int>> dist(rows, vector<int>(cols, numeric_limits<int>::max()));  // dost[][]
+    vector<vector<pair<int, int>>> parent(rows, vector<pair<int, int>> (cols, {-1, -1})); // for bactrack
+
+    // Initialize BFS with all 'S' positions
+    for (const auto &s : starts) {
+        q.push({s.first, s.second, 0}); // 0 means starting point
+        dist[s.first][s.second] = 0;
+    }
+
+    bool pathFound = false;
+    pair<int, int> finalDest; // Store final destination to backtrack
+
+    while (!q.empty()) {
+        Node curr = q.front();
+        q.pop();
+
+        // If we reach any 'E', stop BFS
+        if (simulatemap[curr.x][curr.y] == 'E') {
+            pathFound = true;
+            finalDest = {curr.x, curr.y};
+            break;
+        }
+
+        // Check all possible movements
+        for (int i = 0; i < 4; i++) {
+            int newX = curr.x + dx[i];  //dx[] = {-1, 1, 0, 0};dy[] = {0, 0, -1, 1};
+            int newY = curr.y + dy[i];
+
+            // Check boundaries & ensure it's a walkable path
+            if (newX >= 0 && newX < rows && newY >= 0 && newY < cols &&
+                simulatemap[newX][newY] != '#' && dist[newX][newY] > curr.dist + 1) {
+                
+                dist[newX][newY] = curr.dist + 1;
+                parent[newX][newY] = {curr.x, curr.y}; // Store parent for backtracking
+                q.push({newX, newY, curr.dist + 1});
+            }
+        }
+    }
+
+    if (!pathFound) {
+        cout << "No Path Found!" << endl;
+        return -1;
+    }
+
+    vector<string> filteredMap(rows, string(cols, ' '));
+    vector<vector<bool>> pathSpaces(rows, vector<bool>(cols, false));
+
+    // Copy only '#' walls to filteredMap
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (simulatemap[i][j] == '#') {
+                filteredMap[i][j] = '#'; // Keep walls
+            }
+        }
+    }
+
+    // Backtrack to mark the correct route
+    pair<int, int> current = finalDest;
+    while (simulatemap[current.first][current.second] != 'S') {
+        pair<int, int> prev = parent[current.first][current.second];
+        if (prev.first == -1 && prev.second == -1) break;
+        if (simulatemap[current.first][current.second] != 'E') {
+            filteredMap[current.first][current.second] = simulatemap[current.first][current.second]; 
+        }
+        if (simulatemap[current.first][current.second] == ' ') {
+            pathSpaces[current.first][current.second] = true;
+        }
+        current = prev;
+    }
+
+    // Keep 'S' and 'E' positions
+    for (const auto &s : starts) {
+        filteredMap[s.first][s.second] = 'S';
+    }
+    for (const auto &e : ends) {
+        filteredMap[e.first][e.second] = 'E';
+    }
+
+    // Display the modified map with only required elements
+    cout << "\nShortest Path Found! Length: " << dist[finalDest.first][finalDest.second] << endl;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            char c = filteredMap[i][j];
+
+            // Print walls normally
+            if (c == '#') {
+                cout << "#";
+            }
+            // Print 'S' and 'E' normally
+            else if (c == 'S' || c == 'E') {
+                cout << c;
+            }
+            // Print path letters normally
+            else if (isalpha(c)) {
+                cout << c;
+            }
+            else if (pathSpaces[i][j]) {
+                cout << WHITE_BG << " " << RESET;
+            }
+            // Otherwise, print space normally
+            else {
+                cout << " ";
+            }
+        }
+        cout << endl;
+    }
+    
+    /*
+    // Display the modified map with the path marked
+    cout << "\nShortest Path Found! Length: " << dist[finalDest.first][finalDest.second] << endl;
+    
+    cout << "   "; 
+    for (int col = 0; col < cols; col++) {
+        if (col < 10) cout << " " << col << " ";  // Single-digit alignment
+        else cout << col << " ";  // Double-digit numbers
+    }
+    cout << endl;
+
+    // Print the map with row numbering
+    for (int row = 0; row < rows; row++) {
+        cout << (row < 10 ? " " : "") << row << " ";
+        for (char cell : simulatemap[row]) {
+            cout << " " << cell << " ";
+        }
+        cout << endl;
+    }
+    */
+    return dist[finalDest.first][finalDest.second];
+}
+
 
 
 void AutoPilotMenu() {  //marking
@@ -623,9 +781,9 @@ void MainMenu() {
             	//printMapWithCoordinates(presimulatemap);
             	extractEveryThird(presimulatemap);
             	printMap(simulatemap); 
-            	printCharacterLocations(simulatemap, 'S');
-	        printCharacterLocations(simulatemap, 'E');
-	        std::cout<<"helloworld"<<std::endl;
+            	findShortestPath(simulatemap);
+            	//printCharacterLocations(simulatemap, 'S');
+	        //printCharacterLocations(simulatemap, 'E');
             	break;
             case 5:
                 std::cout << "\nExiting the program." << std::endl;
