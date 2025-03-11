@@ -329,7 +329,12 @@ void AutoPilotMenu() {  //marking
   BoolDisplayTerminal = booldisplayterminalQuestion();
   BoolStartRun = boolstartQuestion();
   
-      // hide the output to the terminal [START]
+  if (BoolStartRun == false ) {
+    std::cout << "\nStop Autopilot Mapping! Retrun to main menu ..."<<std::endl;
+    MainMenu();
+  }
+  
+    // hide the output to the terminal [START]
     std::streambuf* oldCout = std::cout.rdbuf();
     std::ofstream nullStream("/dev/null"); 
     std::cout.rdbuf(nullStream.rdbuf());
@@ -347,7 +352,7 @@ void AutoPilotMenu() {  //marking
     fclose(stdout);				// code turn output on
     stdout = originalStdout;	// code turn output on
 
-    svd.AutoMapping(ScenarioFile, BoolDecryption, MapReportFile);
+    svd.AutoMapping(ScenarioFile, BoolDecryption, MapReportFile, BoolDisplayTerminal);
     std::cout<<std::endl;
     //svd.printArray();
 }
@@ -501,6 +506,7 @@ void MainMenu() {
                 break;
             case 3:
                 AutoPilotMenu();
+                MainMenu();
                 break;
             case 4:
                 std::cout << "\nStarting Simulation!" << std::endl;

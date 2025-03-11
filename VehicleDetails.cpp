@@ -719,7 +719,8 @@ std::string SecondVehicleDetails::getFormattedTimestamp() {
 }
 
 
-void SecondVehicleDetails::AutoMapping(const std::string &srcFileName, bool fileNeedsDecryption, const std::string &srcMapReport) {
+void SecondVehicleDetails::AutoMapping(const std::string &srcFileName, bool fileNeedsDecryption, const std::string &srcMapReport, bool displayTerminal) {
+    std::string tmpStartStamp;
     std::string tmpEndStamp;
     
     std::ofstream outFile(srcMapReport);
@@ -727,14 +728,26 @@ void SecondVehicleDetails::AutoMapping(const std::string &srcFileName, bool file
       std::cerr << "Error: Could not open file for writing!" << std::endl;
       return;
     }
+    
+    std::cout << "Map report saved to :"<< srcMapReport<<std::endl;
+    
     std::ostream& out = outFile;
     
     out<<"\nINPUT scenario file name      :"<< srcFileName << std::endl;
     out<<"INPUT scenario file encrypted :"<< (fileNeedsDecryption ? "Y" : "N")<< std::endl;
     out<<"OUTPUT map report filename    :"<< srcMapReport << std::endl;
     out<<std::endl;
-    out<<"Start datetime stamp          :"<<getFormattedTimestamp()<<std::endl;
+    out<<"Start datetime stamp          :"<<std::endl;
 
+    if (displayTerminal) {
+        std::cout << "\nDisplaying contents of "<< srcMapReport<<" on Ubuntu terminal: "<<std::endl;
+        std::cout << "\nINPUT scenario file name      : " << srcFileName << std::endl;
+        std::cout << "INPUT scenario file encrypted : " << (fileNeedsDecryption ? "Y" : "N") << std::endl;
+        std::cout << "OUTPUT map report filename    : " << srcMapReport << std::endl;
+        std::cout << std::endl;
+        std::cout << "Start datetime stamp          : " << getFormattedTimestamp() << std::endl;
+    }
+    
     for (int l = 1; l < vehicleDetailsRef.totalVertical; l++ ) {
       for (int i = 1; i < vehicleDetailsRef.totalHorizontal - 1; i++ ) {
         if (l == 1) {
@@ -786,40 +799,94 @@ void SecondVehicleDetails::AutoMapping(const std::string &srcFileName, bool file
     out<<std::endl;
     out<<"Total Mapping Duration        :"<<std::endl;
     out<<std::endl;
+    
+    if (displayTerminal) {
+        std::cout << "End datetime stamp            : " << getFormattedTimestamp() << std::endl;
+        std::cout << std::endl;
+        std::cout << "Total Mapping Duration        :" << std::endl;
+        std::cout << std::endl;
+    }
         
     out << "   "; // Space for row numbers
     for (int col = 0; col < vehicleDetailsRef.totalHorizontal; ++col) {
       out << std::setw(2) << col << " ";
     }
     out << std::endl;
+    
+    if (displayTerminal) {
+      std::cout << "   "; 
+      for (int col = 0; col < vehicleDetailsRef.totalHorizontal; ++col) {
+      std::cout << std::setw(2) << col << " ";
+      }
+      std::cout << std::endl;
+    }
         
     for (int l = 0; l < vehicleDetailsRef.totalVertical; l++) {
-        out << std::setw(2) << l << " "; // Row number aligned properly
-
+        out << std::setw(2) << l << " "; 
+        if (displayTerminal) {
+          std::cout << std::setw(2) << l << " "; 
+        }
         for (int i = 0; i < vehicleDetailsRef.totalHorizontal; i++) {
             out << " " << secondmap[l][i] << " ";
+            if (displayTerminal) {
+              std::cout << " " << secondmap[l][i] << " ";
+            }
         }
         out << std::endl;
+        if (displayTerminal) {
+          std::cout << std::endl;
+        }
     }
+    
     out << std::endl;
-
     out << std::left << std::setw(20) << "Terrain Symbol"
               << std::setw(20) << "Movt Enrg Reqd"
               << std::setw(20) << "Shld Enrg Reqd" << std::endl;
-    out << std::string(45, '-') << std::endl; // Separator line
+    out << std::string(45, '-') << std::endl; 
+    
+    if (displayTerminal) {
+      std::cout << std::endl;
+      std::cout << std::left << std::setw(20) << "Terrain Symbol"
+              << std::setw(20) << "Movt Enrg Reqd"
+              << std::setw(20) << "Shld Enrg Reqd" << std::endl;
+      std::cout << std::string(45, '-') << std::endl;    
+    }
     
     for (const auto& row : uniqueScans) { // Loop through each row
-        if (row.size() == 3) { // Ensure row contains 3 elements
+        if (row.size() == 3) {
             out << std::left<< "'"<<row[0] <<std::setw(18) <<"'"  // Terrain symbol
+                      << std::setw(20) << row[1] // Movement Energy
+                      << std::setw(20) << row[2] // Shield Energy
+                      << std::endl;
+        }
+        if (row.size() == 3 && displayTerminal) {
+            std::cout << std::left<< "'"<<row[0] <<std::setw(18) <<"'"  // Terrain symbol
                       << std::setw(20) << row[1] // Movement Energy
                       << std::setw(20) << row[2] // Shield Energy
                       << std::endl;
         }
     }
     outFile.close();
-    std::cout << "Output successfully saved to '"<< srcMapReport <<"'!" << std::endl;
+    std::cout << "\nGoing back to main menu ..."<<std::endl;
 }
+/*
+void SecondVehicleDetails::printArray() {
+    std::cout << std::left << std::setw(20) << "Terrain Symbol"
+              << std::setw(20) << "Movt Enrg Reqd"
+              << std::setw(20) << "Shld Enrg Reqd" << std::endl;
 
+    std::cout << std::string(45, '-') << std::endl; // Separator line
+
+    for (const auto& row : uniqueScans) { // Loop through each row
+        if (row.size() == 3) { // Ensure row contains 3 elements
+            std::cout << std::left << std::setw(20) << row[0] // Terrain symbol
+                      << std::setw(20) << row[1] // Movement Energy
+                      << std::setw(20) << row[2] // Shield Energy
+                      << std::endl;
+        }
+    }
+}
+*/
 void SecondVehicleDetails::calculateData(int CurrmoveEnergy, int CurrshieldEnergy) {
 	tmpCurrentEnergy = CurrmoveEnergy;
 	tmpCurrentShield = CurrshieldEnergy;

@@ -3,8 +3,8 @@ INPUT scenario file name      :Scenario06.dat
 INPUT scenario file encrypted :Y
 OUTPUT map report filename    :map-rpt.txt
 
-Start datetime stamp          :2025-03-09 13:02:56
-End datetime stamp            :2025-03-09 13:02:56
+Start datetime stamp          :
+End datetime stamp            :2025-03-09 14:12:09
 
 Total Mapping Duration        :
 
@@ -28,11 +28,3 @@ Total Mapping Duration        :
 
 Terrain Symbol      Movt Enrg Reqd      Shld Enrg Reqd      
 ---------------------------------------------
-'X'                 389                 1488                
-'f'                 346                 551                 
-'h'                 385                 1589                
-'~'                 336                 532                 
-'j'                 384                 523                 
-'M'                 434                 1558                
-' '                 311                 420                 
-'w'                 331                 509                 

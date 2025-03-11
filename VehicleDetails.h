@@ -65,7 +65,7 @@ public:
     void BottomLeftRightScanMove(int n, int m);
     void BottomRightScanMove(int n, int m);
     
-    void AutoMapping(const std::string &srcFileName, bool fileNeedsDecryption, const std::string &srcMapReport);
+    void AutoMapping(const std::string &srcFileName, bool fileNeedsDecryption, const std::string &srcMapReport, bool displayTerminal);
     void printArray();
     
     void calculateData(int CurrmoveEnergy, int CurrshieldEnergy);
