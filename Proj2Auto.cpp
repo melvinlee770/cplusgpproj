@@ -24,6 +24,11 @@ string vehicletypeQuestion();
 bool booldisplayterminalQuestion();
 bool boolstartQuestion();
 
+vector<string> loadMap(const string &filename);
+vector<string> presimulatemap;
+vector<string> simulatemap;
+void printMap(const vector<string> &presimulatemap);
+
 std::string ScenarioFile = "default.dat";
 bool BoolDecryption = true;
 std::string MapReportFile = "map-rpt.txt";
@@ -31,7 +36,8 @@ std::string RouteReportFile = "route-rpt.txt";
 std::string RouteCriteria = "minimized total energy expenditure";
 std::string VehicleType = "HighLander";
 
-std::string srcFileBranch = "/home/vboxuser/Downloads/cplusgpproj/Scenes/";
+//std::string srcFileBranch = "/home/vboxuser/Downloads/cplusgpproj/Scenes/";
+std::string srcFileBranch = "/home/student/Downloads/cplusgpproj/Scenes/";
 int PreMissionType = 6;     
 bool randomizeStartPosition = true; 
 std::string srcFileName = "/home/vboxuser/Downloads/cplusgpproj/Scenes/MapWW.dat";	//home/student/Downloads/cplusgpproj/Scenes/MapWW.dat
@@ -314,6 +320,107 @@ bool boolstartQuestion() {
 }
 
 
+vector<string> loadMap(const string &filename) {
+    ifstream file(filename);
+    //vector<string> map;
+    string line;
+    while (getline(file, line)) {
+        presimulatemap.push_back(line);
+    }
+    return presimulatemap;
+}
+
+
+vector<string> extractMap(const string &filename) {
+    ifstream file(filename);
+    //vector<string> map;
+    string line;
+    bool mapStarted = false;
+
+    while (getline(file, line)) {
+        // Detect start of map by looking for the first row with numbers
+        if (!mapStarted && line.find("0  1  2") != string::npos) {
+            mapStarted = true; // The next lines contain the map
+            continue; // Skip this line
+        }
+
+        // Detect end of map (when terrain info starts)
+        if (mapStarted && line.find("Terrain Symbol") != string::npos) {
+            break; // Stop reading
+        }
+
+        // Process and clean the map row
+        if (mapStarted) {
+            stringstream ss(line);
+            string index, rowContent;
+            ss >> index; // Remove row number
+            getline(ss, rowContent); // Get the rest of the row
+            if (!rowContent.empty()) {
+                presimulatemap.push_back(rowContent.substr(1)); // Remove leading space
+            }
+        }
+    }
+
+    return presimulatemap;
+}
+
+
+void printMap(const vector<string> &presimulatemap) {
+    for (const string &row : presimulatemap) {
+        cout << " " << row << " "<<endl;
+    }
+}
+
+
+void printMapWithCoordinates(const vector<string> &mapData) {
+    for (size_t row = 0; row < mapData.size(); ++row) {
+        for (size_t col = 0; col < mapData[row].size()-1; ++col) {
+            cout << "(" << row << "," << col << "," << mapData[row][col] << ")";
+            if (col < mapData[row].size() - 1) {
+                cout << ", ";
+            }
+        }
+        cout << "\n\n"; // Add a blank line between rows
+    }
+}
+
+
+vector<string> extractEveryThird(const vector<string> &mapData) {
+    for (const string &row : mapData) {
+        string extractedRow; // Store the extracted columns from this row
+
+        for (size_t col = 1; col < row.size(); col += 3) { // Start at index 1, increment by 3
+            extractedRow += row[col]; // Add the character to the extracted row
+        }
+
+        simulatemap.push_back(extractedRow); // Store the modified row in the new vector
+    }
+
+    return simulatemap;
+}
+
+
+void printCharacterLocations(const vector<string> &mapData, char target) {
+    vector<pair<int, int>> locations;
+
+    // Iterate through the map to find target characters
+    for (size_t row = 0; row < mapData.size(); ++row) {
+        for (size_t col = 0; col < mapData[row].size(); ++col) {
+            if (mapData[row][col] == target) {
+                locations.emplace_back(row, col);
+            }
+        }
+    }
+
+    // Print locations
+    cout << "Locations of '" << target << "':" << endl;
+    for (const auto &loc : locations) {
+        cout << "(" << loc.first << "," << loc.second << ")" << endl;
+    }
+    cout << endl; // Add space for readability
+}
+
+
 void AutoPilotMenu() {  //marking
   VehicleDetails vd;
   SecondVehicleDetails svd(vd);
@@ -468,6 +575,7 @@ void AutoMappingSettings() {
 void MainMenu() {
     std::string choice; // Use a string for input to validate it first
     int choice_number;
+    int totalColumns;
 
     std::cout << "\nTeam number                : 4" << std::endl;
     std::cout << "Team leader name           : Lwin Moe Aung" << std::endl;
@@ -502,9 +610,16 @@ void MainMenu() {
             case 3:
                 AutoPilotMenu();
                 break;
-            case 4:
-                std::cout << "\nStarting Simulation!" << std::endl;
-                break;
+        	case 4:
+            	//presimulatemap = loadMap(MapReportFile); 
+            	presimulatemap = extractMap(MapReportFile);
+            	//printMap(presimulatemap); 
+            	//printMapWithCoordinates(presimulatemap);
+            	extractEveryThird(presimulatemap);
+            	printMap(simulatemap); 
+            	printCharacterLocations(simulatemap, 'S');
+				printCharacterLocations(simulatemap, 'E');
+            	break;
             case 5:
                 std::cout << "\nExiting the program." << std::endl;
                 exit(0);
