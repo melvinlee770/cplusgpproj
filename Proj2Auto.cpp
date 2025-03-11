@@ -625,6 +625,7 @@ void MainMenu() {
             	printMap(simulatemap); 
             	printCharacterLocations(simulatemap, 'S');
 	        printCharacterLocations(simulatemap, 'E');
+	        std::cout<<"helloworld"<<std::endl;
             	break;
             case 5:
                 std::cout << "\nExiting the program." << std::endl;
