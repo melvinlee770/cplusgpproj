@@ -1,0 +1,38 @@
+
+INPUT scenario file name      :Scenario06.dat
+INPUT scenario file encrypted :Y
+OUTPUT map report filename    :map-rpt.txt
+
+Start datetime stamp          :
+End datetime stamp            :2025-03-11 12:14:02
+
+Total Mapping Duration        :
+
+    0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 
+ 0  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  # 
+ 1  #     X  f  h  ~  ~  f  j  ~  M  j  M  h  h  j  ~     j  f  j  h  X  M  X  # 
+ 2  #  f  w  X  h  h  h  h  h     f  ~  M  M  ~  f  j  f  f  f  M  ~  h  M  f  # 
+ 3  #  w  j  j  M  M  X  X  X  f  w  X  j  j  f  f  j  X  h  M  w     w  f  h  # 
+ 4  #     ~  w  S  w  w  j  ~  f  ~  w  f  S     ~  j     w     M  S  f  f  h  # 
+ 5  #  M  f  M  j  ~  ~  ~        j  X     f  w  X  w  X  f  X  ~  f     f  ~  # 
+ 6  #  ~  h  ~     X  M  M  ~  w  j  w  ~  h  X  ~  h  M  f  ~  X  w     ~  w  # 
+ 7  #  j  M  ~  w  h  w  j     X  M  X  ~     w  j  h  f  f  M  X  h  ~  j  j  # 
+ 8  #  f     j  f     f  M  M     f     j  M  w  X  j  h     f  X  j  X  w  w  # 
+ 9  #  ~  M     f  f     M  M  E  h  ~  w  h  h     E  X  h     X  w  X  X     # 
+10  #  f  h  w  h  h  ~  f        ~  j     M  j  j  h  f  j  w  X  h  h     X  # 
+11  #  h  M  h  w  w  w  h  M  f  X  M     X  w  f  ~  j     j  M     X  ~  w  # 
+12  #  X  h     j  w  ~           h  ~  X  M  M  M  M  j  X  M  X  j  j  f  j  # 
+13  #  M  w  w  f  ~  X  ~  f  w  h     X  M  ~  w  h  X  f  j  X  j  M     h  # 
+14  #  j  ~  X     f  f  j  f  M  w  f  f     M  h  h  M  j  ~  ~  w  w  M  w  # 
+15  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  #  # 
+
+Terrain Symbol      Movt Enrg Reqd      Shld Enrg Reqd      
+---------------------------------------------
+'X'                 389                 1488                
+'f'                 346                 551                 
+'h'                 385                 1589                
+'~'                 336                 532                 
+'j'                 384                 523                 
+'M'                 434                 1558                
+' '                 311                 420                 
+'w'                 331                 509                 

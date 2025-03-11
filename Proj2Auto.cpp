@@ -36,8 +36,8 @@ std::string RouteReportFile = "route-rpt.txt";
 std::string RouteCriteria = "minimized total energy expenditure";
 std::string VehicleType = "HighLander";
 
-//std::string srcFileBranch = "/home/vboxuser/Downloads/cplusgpproj/Scenes/";
-std::string srcFileBranch = "/home/student/Downloads/cplusgpproj/Scenes/";
+std::string srcFileBranch = "/home/vboxuser/Downloads/cplusgpproj/Scenes/";
+//std::string srcFileBranch = "/home/student/Downloads/cplusgpproj/Scenes/";
 int PreMissionType = 6;     
 bool randomizeStartPosition = true; 
 std::string srcFileName = "/home/vboxuser/Downloads/cplusgpproj/Scenes/MapWW.dat";	//home/student/Downloads/cplusgpproj/Scenes/MapWW.dat
@@ -624,7 +624,7 @@ void MainMenu() {
             	extractEveryThird(presimulatemap);
             	printMap(simulatemap); 
             	printCharacterLocations(simulatemap, 'S');
-				printCharacterLocations(simulatemap, 'E');
+	        printCharacterLocations(simulatemap, 'E');
             	break;
             case 5:
                 std::cout << "\nExiting the program." << std::endl;
