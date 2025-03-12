@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
+#include <iomanip>
 #include <regex>
 #include <cstdlib>
 #include <queue>
@@ -44,8 +45,8 @@ std::string RouteReportFile = "route-rpt.txt";
 std::string RouteCriteria = "minimized total energy expenditure";
 std::string VehicleType = "HighLander";
 
-std::string srcFileBranch = "/home/vboxuser/Downloads/cplusgpproj/Scenes/";
-//std::string srcFileBranch = "/home/student/Downloads/cplusgpproj/Scenes/";
+//std::string srcFileBranch = "/home/vboxuser/Downloads/cplusgpproj/Scenes/";
+std::string srcFileBranch = "/home/student/Downloads/cplusgpproj/Scenes/";
 int PreMissionType = 6;     
 bool randomizeStartPosition = true; 
 std::string srcFileName = "/home/vboxuser/Downloads/cplusgpproj/Scenes/MapWW.dat";	//home/student/Downloads/cplusgpproj/Scenes/MapWW.dat
@@ -431,7 +432,7 @@ void printCharacterLocations(const vector<string> &mapData, char target) {
     cout << endl; // Add space for readability
 }
 
-
+/*
 int findShortestPath(vector<string> &simulatemap) {
     int rows = simulatemap.size();
     int cols = simulatemap[0].size();
@@ -574,10 +575,160 @@ int findShortestPath(vector<string> &simulatemap) {
         cout << endl;
     }
     */
-    return dist[finalDest.first][finalDest.second];
+    //return dist[finalDest.first][finalDest.second];
+//}
+
+
+int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, int> end) {
+    int rows = simulatemap.size();
+    int cols = simulatemap[0].size();
+
+    queue<Node> q;
+    vector<vector<int>> dist(rows, vector<int>(cols, numeric_limits<int>::max()));
+    vector<vector<pair<int, int>>> parent(rows, vector<pair<int, int>>(cols, {-1, -1}));
+
+    // Initialize BFS from the specific 'S'
+    q.push({start.first, start.second, 0});
+    dist[start.first][start.second] = 0;
+
+    bool pathFound = false;
+
+    while (!q.empty()) {
+        Node curr = q.front();
+        q.pop();
+
+        if (curr.x == end.first && curr.y == end.second) {
+            pathFound = true;
+            break;
+        }
+
+        for (int i = 0; i < 4; i++) {
+            int newX = curr.x + dx[i];
+            int newY = curr.y + dy[i];
+
+            if (newX >= 0 && newX < rows && newY >= 0 && newY < cols &&
+                simulatemap[newX][newY] != '#' && dist[newX][newY] > curr.dist + 1) {
+                
+                dist[newX][newY] = curr.dist + 1;
+                parent[newX][newY] = {curr.x, curr.y};
+                q.push({newX, newY, curr.dist + 1});
+            }
+        }
+    }
+
+    if (!pathFound) {
+        cout << "No Path Found between S(" << start.first << "," << start.second 
+             << ") and E(" << end.first << "," << end.second << ")!\n";
+        return -1;
+    }
+
+    // Create a matrix to track spaces and characters on the path
+    vector<vector<bool>> pathSpaces(rows, vector<bool>(cols, false));
+    vector<string> outputMap(rows, string(cols, ' '));  // Start with all empty spaces
+
+    // Backtrack to mark the correct route and collect the path sequence
+    vector<pair<int, int>> pathSequence;
+    pair<int, int> current = end;
+
+    while (current != start) {
+        pathSequence.push_back(current);
+        pair<int, int> prev = parent[current.first][current.second];
+        if (prev.first == -1 && prev.second == -1) break;
+
+        // If it's a letter, '~', or '#', keep it
+        if (isalpha(simulatemap[current.first][current.second]) || 
+            simulatemap[current.first][current.second] == '~' || 
+            simulatemap[current.first][current.second] == '#') {
+            outputMap[current.first][current.second] = simulatemap[current.first][current.second];
+        }
+        // If it's a space, mark it for white background
+        else if (simulatemap[current.first][current.second] == ' ') {
+            pathSpaces[current.first][current.second] = true;
+        }
+
+        current = prev;
+    }
+
+    pathSequence.push_back(start);
+    reverse(pathSequence.begin(), pathSequence.end());
+
+    // Keep 'S' and 'E' positions
+    outputMap[start.first][start.second] = 'S';
+    outputMap[end.first][end.second] = 'E';
+
+    // Copy all walls (#) into the output
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (simulatemap[i][j] == '#') {
+                outputMap[i][j] = '#';
+            }
+        }
+    }
+
+    // Display the route sequence
+    cout << "\nShortest Path from S(" << start.first << "," << start.second
+         << ") to E(" << end.first << "," << end.second << ") Length: " 
+         << dist[end.first][end.second] << endl;
+
+    cout << "Route Sequence: \n";
+    for (size_t i = 0; i < pathSequence.size() - 1; i++) {
+        cout << "(" << pathSequence[i].first << "," << pathSequence[i].second << ") -> ";
+    }
+    cout << "(" << pathSequence.back().first << "," << pathSequence.back().second << ")\n\n";
+
+    // **1) Print column numbering with proper alignment**
+    cout << "    ";  // Space to align with row numbers
+    for (int j = 0; j < cols; j++) {
+        cout << setw(3) << j;  // Proper spacing for alignment
+    }
+    cout << endl;
+
+    // **2) Print each row, starting with row number, then the contents**
+    for (int i = 0; i < rows; i++) {
+        cout << setw(3) << i << " ";  // Row number, properly spaced
+
+        for (int j = 0; j < cols; j++) {
+            cout << " ";  // Space before each character
+            if (outputMap[i][j] == 'S' || outputMap[i][j] == 'E' ||
+                isalpha(outputMap[i][j]) || outputMap[i][j] == '~' || outputMap[i][j] == '#') 
+            {
+                cout << outputMap[i][j];
+            } 
+            // If it's on the shortest path and originally a space, show a white background
+            else if (pathSpaces[i][j]) {
+                cout << WHITE_BG << " " << RESET;
+            } 
+            else {
+                cout << " ";
+            }
+            cout << " ";  // Space after each character to match alignment
+        }
+        cout << endl;
+    }
+
+    return dist[end.first][end.second];
 }
 
+void findAllPaths(vector<string> simulatemap) {
+    int rows = simulatemap.size();
+    int cols = simulatemap[0].size();
+    
+    // Locate all 'S' (start positions) and 'E' (end positions)
+    vector<pair<int, int>> starts, ends;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            if (simulatemap[i][j] == 'S') starts.push_back({i, j});
+            if (simulatemap[i][j] == 'E') ends.push_back({i, j});
+        }
+    }
 
+    // Find shortest path for each S-E pair
+    for (const auto &s : starts) {
+        for (const auto &e : ends) {
+            findSinglePath(simulatemap, s, e);
+        }
+    }
+}
 
 void AutoPilotMenu() {  //marking
   VehicleDetails vd;
@@ -780,8 +931,9 @@ void MainMenu() {
             	//printMap(presimulatemap); 
             	//printMapWithCoordinates(presimulatemap);
             	extractEveryThird(presimulatemap);
-            	printMap(simulatemap); 
-            	findShortestPath(simulatemap);
+            	//printMap(simulatemap); 
+            	//findShortestPath(simulatemap);
+            	findAllPaths(simulatemap);
             	//printCharacterLocations(simulatemap, 'S');
 	        //printCharacterLocations(simulatemap, 'E');
             	break;
