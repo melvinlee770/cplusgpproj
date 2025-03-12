@@ -448,6 +448,9 @@ std::map<char, TerrainInfo> captureTerrainData(const std::string& filename) {
     
     std::string line;
     bool startReading = false;
+    std::regex pattern("'(.?)'\\s+(\\d+)\\s+(\\d+)");
+    std::smatch match;
+    
     while (std::getline(file, line)) {
         if (line.find("Terrain Symbol") != std::string::npos) {
             startReading = true;
@@ -455,19 +458,11 @@ std::map<char, TerrainInfo> captureTerrainData(const std::string& filename) {
             continue;
         }
         
-        if (startReading && !line.empty()) {
-            std::istringstream ss(line);
-            std::string temp;
-            int movtEnergy, shldEnergy;
-            
-            ss >> std::ws >> temp >> movtEnergy >> shldEnergy;
-            
-            if (temp.length() == 3 && temp[0] == '\'' && temp[2] == '\'') {
-                char symbol = temp[1];
-                terrainData[symbol] = {movtEnergy, shldEnergy};
-            } else if (temp == "' '") { // Handle space character
-                terrainData[' '] = {movtEnergy, shldEnergy};
-            }
+        if (startReading && std::regex_search(line, match, pattern)) {
+            char symbol = match[1].str().empty() ? ' ' : match[1].str()[0];
+            int movtEnergy = std::stoi(match[2].str());
+            int shldEnergy = std::stoi(match[3].str());
+            terrainData[symbol] = {movtEnergy, shldEnergy};
         }
     }
     
@@ -684,6 +679,8 @@ void SimulationMenu() { // third marking
   VehicleDetails vd;
   SecondVehicleDetails svd(vd);
   std::map<char, TerrainInfo> terrain;
+  terrain = captureTerrainData(MapReportFile);
+  
   std::cout << "\n[Start Simulation Route]\n"<< std::endl;
   std::cout << "INPUT map details filename  = " << MapReportFile << std::endl;
   std::cout << "OUTPUT route report         = " << RouteReportFile << std::endl;
@@ -691,13 +688,14 @@ void SimulationMenu() { // third marking
   std::cout << "Vehicle Type                = " << VehicleType << std::endl;
   std::cout<<std::endl;
   std::cout << "Start datetime stamp          : " << svd.getFormattedTimestamp() << std::endl;
-
-  terrain = captureTerrainData(MapReportFile);
+  
+  std::cout << "Captured Terrain Data:\n";
   for (const auto& entry : terrain) {
-    std::cout << "Symbol: " << entry.first 
-              << ", Movement Energy: " << entry.second.movementEnergy
-              << ", Shield Energy: " << entry.second.shieldEnergy << std::endl;
+    std::cout << "Symbol: " << (entry.first == ' ' ? "[space]" : std::string(1, entry.first)) 
+                  << ", Movement Energy: " << entry.second.movementEnergy
+                  << ", Shield Energy: " << entry.second.shieldEnergy << std::endl;
   }
+
   //presimulatemap = loadMap(MapReportFile); 
   presimulatemap = extractMap(MapReportFile);
   //printMap(presimulatemap); 
