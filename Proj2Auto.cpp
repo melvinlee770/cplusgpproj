@@ -14,6 +14,11 @@ using namespace std;
 struct Node {
     int x, y, dist;
 };
+struct TerrainInfo {
+    int movementEnergy;
+    int shieldEnergy;
+};
+
 const int dx[] = {-1, 1, 0, 0};
 const int dy[] = {0, 0, -1, 1};
 const string WHITE_BG = "\033[47m";  // White background
@@ -24,7 +29,6 @@ void MainMenu();
 void AutoMappingSettings();
 void ConfigTerrExpSet();
 void AutoPilotMenu();
-
 string filenameQuestion();
 bool decrypQuestion();
 string mapreportQuestion();
@@ -45,8 +49,8 @@ std::string RouteReportFile = "route-rpt.txt";
 std::string RouteCriteria = "minimized total energy expenditure";
 std::string VehicleType = "HighLander";
 
-//std::string srcFileBranch = "/home/vboxuser/Downloads/cplusgpproj/Scenes/";
-std::string srcFileBranch = "/home/student/Downloads/cplusgpproj/Scenes/";
+std::string srcFileBranch = "/home/vboxuser/Downloads/cplusgpproj/Scenes/";
+//std::string srcFileBranch = "/home/student/Downloads/cplusgpproj/Scenes/";
 int PreMissionType = 6;     
 bool randomizeStartPosition = true; 
 std::string srcFileName = "/home/vboxuser/Downloads/cplusgpproj/Scenes/MapWW.dat";	//home/student/Downloads/cplusgpproj/Scenes/MapWW.dat
@@ -432,154 +436,48 @@ void printCharacterLocations(const vector<string> &mapData, char target) {
     cout << endl; // Add space for readability
 }
 
-/*
-int findShortestPath(vector<string> &simulatemap) {
-    int rows = simulatemap.size();
-    int cols = simulatemap[0].size();
+
+std::map<char, TerrainInfo> captureTerrainData(const std::string& filename) {
+    std::map<char, TerrainInfo> terrainData;
+    std::ifstream file(filename);
     
-    // found and locate sll the "S" & "E"
-    vector<pair<int, int>> starts, ends;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (simulatemap[i][j] == 'S') starts.push_back({i, j});
-            if (simulatemap[i][j] == 'E') ends.push_back({i, j});
-        }
-    }
-
-    // BFS Queue (x, y, distance)
-    queue<Node> q;
-    vector<vector<int>> dist(rows, vector<int>(cols, numeric_limits<int>::max()));  // dost[][]
-    vector<vector<pair<int, int>>> parent(rows, vector<pair<int, int>> (cols, {-1, -1})); // for bactrack
-
-    // Initialize BFS with all 'S' positions
-    for (const auto &s : starts) {
-        q.push({s.first, s.second, 0}); // 0 means starting point
-        dist[s.first][s.second] = 0;
-    }
-
-    bool pathFound = false;
-    pair<int, int> finalDest; // Store final destination to backtrack
-
-    while (!q.empty()) {
-        Node curr = q.front();
-        q.pop();
-
-        // If we reach any 'E', stop BFS
-        if (simulatemap[curr.x][curr.y] == 'E') {
-            pathFound = true;
-            finalDest = {curr.x, curr.y};
-            break;
-        }
-
-        // Check all possible movements
-        for (int i = 0; i < 4; i++) {
-            int newX = curr.x + dx[i];  //dx[] = {-1, 1, 0, 0};dy[] = {0, 0, -1, 1};
-            int newY = curr.y + dy[i];
-
-            // Check boundaries & ensure it's a walkable path
-            if (newX >= 0 && newX < rows && newY >= 0 && newY < cols &&
-                simulatemap[newX][newY] != '#' && dist[newX][newY] > curr.dist + 1) {
-                
-                dist[newX][newY] = curr.dist + 1;
-                parent[newX][newY] = {curr.x, curr.y}; // Store parent for backtracking
-                q.push({newX, newY, curr.dist + 1});
-            }
-        }
-    }
-
-    if (!pathFound) {
-        cout << "No Path Found!" << endl;
-        return -1;
-    }
-
-    vector<string> filteredMap(rows, string(cols, ' '));
-    vector<vector<bool>> pathSpaces(rows, vector<bool>(cols, false));
-
-    // Copy only '#' walls to filteredMap
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            if (simulatemap[i][j] == '#') {
-                filteredMap[i][j] = '#'; // Keep walls
-            }
-        }
-    }
-
-    // Backtrack to mark the correct route
-    pair<int, int> current = finalDest;
-    while (simulatemap[current.first][current.second] != 'S') {
-        pair<int, int> prev = parent[current.first][current.second];
-        if (prev.first == -1 && prev.second == -1) break;
-        if (simulatemap[current.first][current.second] != 'E') {
-            filteredMap[current.first][current.second] = simulatemap[current.first][current.second]; 
-        }
-        if (simulatemap[current.first][current.second] == ' ') {
-            pathSpaces[current.first][current.second] = true;
-        }
-        current = prev;
-    }
-
-    // Keep 'S' and 'E' positions
-    for (const auto &s : starts) {
-        filteredMap[s.first][s.second] = 'S';
-    }
-    for (const auto &e : ends) {
-        filteredMap[e.first][e.second] = 'E';
-    }
-
-    // Display the modified map with only required elements
-    cout << "\nShortest Path Found! Length: " << dist[finalDest.first][finalDest.second] << endl;
-    for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
-            char c = filteredMap[i][j];
-
-            // Print walls normally
-            if (c == '#') {
-                cout << "#";
-            }
-            // Print 'S' and 'E' normally
-            else if (c == 'S' || c == 'E') {
-                cout << c;
-            }
-            // Print path letters normally
-            else if (isalpha(c)) {
-                cout << c;
-            }
-            else if (pathSpaces[i][j]) {
-                cout << WHITE_BG << " " << RESET;
-            }
-            // Otherwise, print space normally
-            else {
-                cout << " ";
-            }
-        }
-        cout << endl;
+    if (!file.is_open()) {
+        std::cerr << "Error: Unable to open file." << std::endl;
+        return terrainData;
     }
     
-    /*
-    // Display the modified map with the path marked
-    cout << "\nShortest Path Found! Length: " << dist[finalDest.first][finalDest.second] << endl;
-    
-    cout << "   "; 
-    for (int col = 0; col < cols; col++) {
-        if (col < 10) cout << " " << col << " ";  // Single-digit alignment
-        else cout << col << " ";  // Double-digit numbers
-    }
-    cout << endl;
-
-    // Print the map with row numbering
-    for (int row = 0; row < rows; row++) {
-        cout << (row < 10 ? " " : "") << row << " ";
-        for (char cell : simulatemap[row]) {
-            cout << " " << cell << " ";
+    std::string line;
+    bool startReading = false;
+    while (std::getline(file, line)) {
+        if (line.find("Terrain Symbol") != std::string::npos) {
+            startReading = true;
+            std::getline(file, line); // Skip the header separator line
+            continue;
         }
-        cout << endl;
+        
+        if (startReading && !line.empty()) {
+            std::istringstream ss(line);
+            std::string temp;
+            int movtEnergy, shldEnergy;
+            
+            ss >> std::ws >> temp >> movtEnergy >> shldEnergy;
+            
+            if (temp.length() == 3 && temp[0] == '\'' && temp[2] == '\'') {
+                char symbol = temp[1];
+                terrainData[symbol] = {movtEnergy, shldEnergy};
+            } else if (temp == "' '") { // Handle space character
+                terrainData[' '] = {movtEnergy, shldEnergy};
+            }
+        }
     }
-    */
-    //return dist[finalDest.first][finalDest.second];
-//}
+    
+    file.close();
+    return terrainData;
+}
 
 
 int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, int> end) {
+    static int routeCount = 1;
     int rows = simulatemap.size();
     int cols = simulatemap[0].size();
 
@@ -664,22 +562,30 @@ int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, i
             }
         }
     }
+    
+    cout << "\nRoute 0"<< routeCount++<<" - ";
 
     // Display the route sequence
-    cout << "\nShortest Path from S(" << start.first << "," << start.second
-         << ") to E(" << end.first << "," << end.second << ") Length: " 
-         << dist[end.first][end.second] << endl;
+    cout << "From [" << start.first << "," << start.second
+         << "] to [" << end.first << "," << end.second << "] \n"<<endl;
 
-    cout << "Route Sequence: \n";
+    cout << "Sequence: \n";
     for (size_t i = 0; i < pathSequence.size() - 1; i++) {
-        cout << "(" << pathSequence[i].first << "," << pathSequence[i].second << ") -> ";
+        cout << "[" << pathSequence[i].first << "," << pathSequence[i].second << "] -> ";
     }
-    cout << "(" << pathSequence.back().first << "," << pathSequence.back().second << ")\n\n";
+    cout << "[" << pathSequence.back().first << "," << pathSequence.back().second << "]\n"<<endl;
+    
+    cout<< "Tot. No. of grid area travelled (excluding 'S' and 'E') = "<<dist[end.first][end.second]-1<<"\n"<<endl;
 
     // **1) Print column numbering with proper alignment**
     cout << "    ";  // Space to align with row numbers
     for (int j = 0; j < cols; j++) {
-        cout << setw(3) << j;  // Proper spacing for alignment
+        if (j> 9) {
+          cout << j<< " ";
+        }
+        else {
+          cout << " "<< j<< " "; 
+        }
     }
     cout << endl;
 
@@ -771,6 +677,37 @@ void AutoPilotMenu() {  //marking
     svd.AutoMapping(ScenarioFile, BoolDecryption, MapReportFile, BoolDisplayTerminal);
     std::cout<<std::endl;
     //svd.printArray();
+}
+
+
+void SimulationMenu() { // third marking
+  VehicleDetails vd;
+  SecondVehicleDetails svd(vd);
+  std::map<char, TerrainInfo> terrain;
+  std::cout << "\n[Start Simulation Route]\n"<< std::endl;
+  std::cout << "INPUT map details filename  = " << MapReportFile << std::endl;
+  std::cout << "OUTPUT route report         = " << RouteReportFile << std::endl;
+  std::cout << "Ideal Route Criteria        = " << RouteCriteria << std::endl;
+  std::cout << "Vehicle Type                = " << VehicleType << std::endl;
+  std::cout<<std::endl;
+  std::cout << "Start datetime stamp          : " << svd.getFormattedTimestamp() << std::endl;
+
+  terrain = captureTerrainData(MapReportFile);
+  for (const auto& entry : terrain) {
+    std::cout << "Symbol: " << entry.first 
+              << ", Movement Energy: " << entry.second.movementEnergy
+              << ", Shield Energy: " << entry.second.shieldEnergy << std::endl;
+  }
+  //presimulatemap = loadMap(MapReportFile); 
+  presimulatemap = extractMap(MapReportFile);
+  //printMap(presimulatemap); 
+  //printMapWithCoordinates(presimulatemap);
+  extractEveryThird(presimulatemap);
+  //printMap(simulatemap); 
+  //findShortestPath(simulatemap);
+  findAllPaths(simulatemap);
+  //printCharacterLocations(simulatemap, 'S');
+  //printCharacterLocations(simulatemap, 'E');
 }
 
 
@@ -889,7 +826,6 @@ void AutoMappingSettings() {
 void MainMenu() {
     std::string choice; // Use a string for input to validate it first
     int choice_number;
-    int totalColumns;
 
     std::cout << "\nTeam number                : 4" << std::endl;
     std::cout << "Team leader name           : Lwin Moe Aung" << std::endl;
@@ -925,17 +861,8 @@ void MainMenu() {
                 AutoPilotMenu();
                 MainMenu();
                 break;
-        	case 4:
-            	//presimulatemap = loadMap(MapReportFile); 
-            	presimulatemap = extractMap(MapReportFile);
-            	//printMap(presimulatemap); 
-            	//printMapWithCoordinates(presimulatemap);
-            	extractEveryThird(presimulatemap);
-            	//printMap(simulatemap); 
-            	//findShortestPath(simulatemap);
-            	findAllPaths(simulatemap);
-            	//printCharacterLocations(simulatemap, 'S');
-	        //printCharacterLocations(simulatemap, 'E');
+            case 4:
+                SimulationMenu();
             	break;
             case 5:
                 std::cout << "\nExiting the program." << std::endl;

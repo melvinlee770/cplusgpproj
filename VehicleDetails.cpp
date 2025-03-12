@@ -737,7 +737,7 @@ void SecondVehicleDetails::AutoMapping(const std::string &srcFileName, bool file
     out<<"INPUT scenario file encrypted :"<< (fileNeedsDecryption ? "Y" : "N")<< std::endl;
     out<<"OUTPUT map report filename    :"<< srcMapReport << std::endl;
     out<<std::endl;
-    out<<"Start datetime stamp          :"<<std::endl;
+    out<<"Start datetime stamp          :"<< getFormattedTimestamp() <<std::endl;
 
     if (displayTerminal) {
         std::cout << "\nDisplaying contents of "<< srcMapReport<<" on Ubuntu terminal: "<<std::endl;
