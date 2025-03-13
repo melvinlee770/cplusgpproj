@@ -608,6 +608,40 @@ int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, i
     }
     cout << " = " << totalMovementEnergy << "\n\n";
     
+    cout << "Tot. Movt Enrg Reqd ("<< VehicleType <<") =\n";
+    first = true;
+    cout<< totalMovementEnergy<<" - ";
+    for (char c : pathContents) {
+        if ((terrainData.count(c) && VehicleType == "HighLander") && (c == 'h' || c == 'M')) {
+            int energy = terrainData.at(c).movementEnergy * 0.5;
+            totalMovementEnergy -= energy;
+            if (!first) {
+                cout << " - ";
+            }
+            cout << (c == ' ' ? "[space]" : std::string(1, c)) << "(" << energy << ")";
+            first = false;
+        }
+        else if ((terrainData.count(c) && VehicleType == "DragonFly") && (c == 'w' || c == '~')) {
+            int energy = terrainData.at(c).movementEnergy * 0.5;
+            totalMovementEnergy -= energy;
+            if (!first) {
+                cout << " - ";
+            }
+            cout << (c == ' ' ? "[space]" : std::string(1, c)) << "(" << energy << ")";
+            first = false;
+        }
+        if ((terrainData.count(c) && VehicleType == "ShieldHero") && c=='X') {
+            int energy = terrainData.at(c).movementEnergy * 0.5;
+            totalMovementEnergy -= energy;
+            if (!first) {
+                cout << " - ";
+            }
+            cout << (c == ' ' ? "[space]" : std::string(1, c)) << "(" << energy << ")";
+            first = false;
+        }
+    }
+    cout << " = " << totalMovementEnergy << "\n\n";
+    
     // **1) Print column numbering with proper alignment**
     cout << "    ";  // Space to align with row numbers
     for (int j = 0; j < cols; j++) {
