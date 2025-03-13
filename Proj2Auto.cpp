@@ -18,6 +18,7 @@ struct TerrainInfo {
     int movementEnergy;
     int shieldEnergy;
 };
+std::map<char, TerrainInfo> terrainData;
 
 const int dx[] = {-1, 1, 0, 0};
 const int dy[] = {0, 0, -1, 1};
@@ -438,7 +439,6 @@ void printCharacterLocations(const vector<string> &mapData, char target) {
 
 
 std::map<char, TerrainInfo> captureTerrainData(const std::string& filename) {
-    std::map<char, TerrainInfo> terrainData;
     std::ifstream file(filename);
     
     if (!file.is_open()) {
@@ -471,14 +471,19 @@ std::map<char, TerrainInfo> captureTerrainData(const std::string& filename) {
 }
 
 
-int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, int> end) {
+int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, int> end, std::string &tmpvehicleType) {
     static int routeCount = 1;
     int rows = simulatemap.size();
     int cols = simulatemap[0].size();
+    int totalMovementEnergy = 0;
+    int preferredTerrainCount = 0;
 
     queue<Node> q;
     vector<vector<int>> dist(rows, vector<int>(cols, numeric_limits<int>::max()));
     vector<vector<pair<int, int>>> parent(rows, vector<pair<int, int>>(cols, {-1, -1}));
+    vector<char> pathContents;
+    
+    terrainData = captureTerrainData(MapReportFile);
 
     // Initialize BFS from the specific 'S'
     q.push({start.first, start.second, 0});
@@ -525,6 +530,16 @@ int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, i
 
     while (current != start) {
         pathSequence.push_back(current);
+        pathContents.push_back(simulatemap[current.first][current.second]);
+        if (simulatemap[current.first][current.second] == 'X' && VehicleType == "ShieldHero") {
+            preferredTerrainCount++;
+        }
+        else if ((simulatemap[current.first][current.second] == 'h' || simulatemap[current.first][current.second] == 'M') && VehicleType == "HighLander"){
+            preferredTerrainCount++;
+        }
+        else if ((simulatemap[current.first][current.second] == 'w' || simulatemap[current.first][current.second] == '~') && VehicleType == "DragonFly"){
+            preferredTerrainCount++;
+        }
         pair<int, int> prev = parent[current.first][current.second];
         if (prev.first == -1 && prev.second == -1) break;
 
@@ -543,7 +558,9 @@ int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, i
     }
 
     pathSequence.push_back(start);
+    pathContents.push_back(simulatemap[start.first][start.second]);
     reverse(pathSequence.begin(), pathSequence.end());
+    reverse(pathContents.begin(), pathContents.end());
 
     // Keep 'S' and 'E' positions
     outputMap[start.first][start.second] = 'S';
@@ -570,8 +587,27 @@ int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, i
     }
     cout << "[" << pathSequence.back().first << "," << pathSequence.back().second << "]\n"<<endl;
     
-    cout<< "Tot. No. of grid area travelled (excluding 'S' and 'E') = "<<dist[end.first][end.second]-1<<"\n"<<endl;
-
+    cout << "Tot. No. of PREFERED TERRAIN explored = "<< preferredTerrainCount <<endl;
+    cout<< "Tot. No. of grid area travelled (excluding 'S' and 'E') = "<<dist[end.first][end.second]-1<<endl;
+    
+    // Print path contents
+    cout << "Tot. Movt Enrg Reqd (Generic Veh) =\n";
+    bool first = true;
+    for (char c : pathContents) {
+        if (terrainData.count(c)) {
+            int energy = terrainData.at(c).movementEnergy;
+            totalMovementEnergy += energy;
+            if (!first) {
+                cout << " + ";
+            }
+            cout << (c == ' ' ? "[space]" : std::string(1, c));
+            cout << "(" << energy <<")";
+            
+            first = false;
+        }
+    }
+    cout << " = " << totalMovementEnergy << "\n\n";
+    
     // **1) Print column numbering with proper alignment**
     cout << "    ";  // Space to align with row numbers
     for (int j = 0; j < cols; j++) {
@@ -606,13 +642,13 @@ int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, i
         }
         cout << endl;
     }
-
     return dist[end.first][end.second];
 }
 
-void findAllPaths(vector<string> simulatemap) {
+void findAllPaths(vector<string> simulatemap, std::string &vehicleType) {
     int rows = simulatemap.size();
     int cols = simulatemap[0].size();
+    string tmpvehicleType = vehicleType;
     
     // Locate all 'S' (start positions) and 'E' (end positions)
     vector<pair<int, int>> starts, ends;
@@ -626,11 +662,10 @@ void findAllPaths(vector<string> simulatemap) {
     // Find shortest path for each S-E pair
     for (const auto &s : starts) {
         for (const auto &e : ends) {
-            findSinglePath(simulatemap, s, e);
+            findSinglePath(simulatemap, s, e, tmpvehicleType);
         }
     }
 }
-
 void AutoPilotMenu() {  //marking
   VehicleDetails vd;
   SecondVehicleDetails svd(vd);
@@ -679,7 +714,7 @@ void SimulationMenu() { // third marking
   VehicleDetails vd;
   SecondVehicleDetails svd(vd);
   std::map<char, TerrainInfo> terrain;
-  terrain = captureTerrainData(MapReportFile);
+  
   
   std::cout << "\n[Start Simulation Route]\n"<< std::endl;
   std::cout << "INPUT map details filename  = " << MapReportFile << std::endl;
@@ -689,12 +724,12 @@ void SimulationMenu() { // third marking
   std::cout<<std::endl;
   std::cout << "Start datetime stamp          : " << svd.getFormattedTimestamp() << std::endl;
   
-  std::cout << "Captured Terrain Data:\n";
-  for (const auto& entry : terrain) {
-    std::cout << "Symbol: " << (entry.first == ' ' ? "[space]" : std::string(1, entry.first)) 
-                  << ", Movement Energy: " << entry.second.movementEnergy
-                  << ", Shield Energy: " << entry.second.shieldEnergy << std::endl;
-  }
+  //std::cout << "Captured Terrain Data:\n";
+  //for (const auto& entry : terrain) {
+    //std::cout << "Symbol: " << (entry.first == ' ' ? "[space]" : std::string(1, entry.first)) 
+                  //<< ", Movement Energy: " << entry.second.movementEnergy
+                  //<< ", Shield Energy: " << entry.second.shieldEnergy << std::endl;
+  //}
 
   //presimulatemap = loadMap(MapReportFile); 
   presimulatemap = extractMap(MapReportFile);
@@ -703,7 +738,7 @@ void SimulationMenu() { // third marking
   extractEveryThird(presimulatemap);
   //printMap(simulatemap); 
   //findShortestPath(simulatemap);
-  findAllPaths(simulatemap);
+  findAllPaths(simulatemap, VehicleType);
   //printCharacterLocations(simulatemap, 'S');
   //printCharacterLocations(simulatemap, 'E');
 }
