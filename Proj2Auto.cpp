@@ -226,7 +226,6 @@ string routecriteriaQuestion() {
   default:
     std::cout << "\nInvalid choice. This should never happen.\n";
   }
-  routecriteriaQuestion();
   return RouteCriteria;
 }
 
