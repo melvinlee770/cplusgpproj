@@ -14,6 +14,15 @@ using namespace std;
 struct Node {
     int x, y, dist;
 };
+struct BFSNode {
+    int x, y, dist;
+    bool hasPreferred;
+};
+struct ParentState {
+    int x, y;
+    int hasPref; // 0 or 1 indicating parent's preferred flag state.
+};
+
 struct TerrainInfo {
     int movementEnergy;
     int shieldEnergy;
@@ -35,7 +44,6 @@ bool decrypQuestion();
 string mapreportQuestion();
 string routereportQuestion();
 string routecriteriaQuestion();
-string vehicletypeQuestion();
 bool booldisplayterminalQuestion();
 bool boolstartQuestion();
 
@@ -264,7 +272,6 @@ string vehicletypeQuestion() {
   default:
     std::cout << "\nInvalid choice. This should never happen.\n";
   }  
-  vehicletypeQuestion();
   return VehicleType;
 }
 
@@ -470,7 +477,7 @@ std::map<char, TerrainInfo> captureTerrainData(const std::string& filename) {
     return terrainData;
 }
 
-
+/*
 int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, int> end, std::string &tmpvehicleType) {
     static int routeCount = 1;
     int rows = simulatemap.size();
@@ -678,6 +685,216 @@ int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, i
     }
     return dist[end.first][end.second];
 }
+*/
+
+
+bool isPreferredTerrain(char cell, const std::string &vehicleType) {
+    if (vehicleType == "HighLander") {
+        return (cell == 'h' || cell == 'M');
+    } else if (vehicleType == "DragonFly") {
+        return (cell == '~' || cell == 'W' || cell == 'w');
+    } else if (vehicleType == "ShieldHero") {
+        return (cell == 'X');
+    }
+    return false;
+}
+
+int findSinglePath(vector<string> simulatemap, pair<int, int> start, pair<int, int> end, std::string &tmpvehicleType) {
+    static int routeCount = 1;
+    int rows = simulatemap.size();
+    int cols = simulatemap[0].size();
+    int totalMovementEnergy = 0;
+    int preferredTerrainCount = 0;
+
+    // Create a 3D distance array: third dimension for hasPreferred state (0 or 1).
+    vector<vector<vector<int>>> dist(rows, vector<vector<int>>(cols, vector<int>(2, numeric_limits<int>::max())));
+    vector<vector<vector<ParentState>>> parent(rows, vector<vector<ParentState>>(cols, vector<ParentState>(2, {-1, -1, -1})));
+
+    // Get terrain data (assuming captureTerrainData is defined elsewhere)
+    terrainData = captureTerrainData(MapReportFile);
+
+    queue<BFSNode> q;
+    bool initialPref = isPreferredTerrain(simulatemap[start.first][start.second], tmpvehicleType);
+    dist[start.first][start.second][initialPref ? 1 : 0] = 0;
+    q.push({start.first, start.second, 0, initialPref});
+
+    bool pathFound = false;
+    int endPrefState = -1;  // to track if we've reached E with hasPreferred true
+
+    // Modified BFS loop.
+    while (!q.empty()) {
+        BFSNode curr = q.front();
+        q.pop();
+
+        // Only consider reaching 'E' valid if preferred terrain has been encountered.
+        if (curr.x == end.first && curr.y == end.second && curr.hasPreferred) {
+            pathFound = true;
+            endPrefState = 1;
+            break;
+        }
+
+        // Check the four possible directions.
+        for (int i = 0; i < 4; i++) {
+            int newX = curr.x + dx[i];
+            int newY = curr.y + dy[i];
+
+            if (newX >= 0 && newX < rows && newY >= 0 && newY < cols &&
+                simulatemap[newX][newY] != '#') {
+
+                bool newHasPreferred = curr.hasPreferred || isPreferredTerrain(simulatemap[newX][newY], tmpvehicleType);
+                int stateIndex = newHasPreferred ? 1 : 0;
+
+                if (dist[newX][newY][stateIndex] > curr.dist + 1) {
+                    dist[newX][newY][stateIndex] = curr.dist + 1;
+                    parent[newX][newY][stateIndex] = {curr.x, curr.y, curr.hasPreferred ? 1 : 0};
+                    q.push({newX, newY, curr.dist + 1, newHasPreferred});
+                }
+            }
+        }
+    }
+
+    if (!pathFound) {
+        cout << "No Valid Path Found between S(" << start.first << "," << start.second 
+             << ") and E(" << end.first << "," << end.second 
+             << ") that passes through a preferred terrain for " << tmpvehicleType << "!\n";
+        return -1;
+    }
+
+    // Backtracking to reconstruct the path.
+    vector<pair<int, int>> pathSequence;
+    vector<char> pathContents;
+    int currPref = 1;  // We reached E with a valid preferred state.
+    pair<int, int> current = end;
+
+    while (current != start) {
+        pathSequence.push_back(current);
+        pathContents.push_back(simulatemap[current.first][current.second]);
+        if (isPreferredTerrain(simulatemap[current.first][current.second], tmpvehicleType)) {
+            preferredTerrainCount++;
+        }
+        ParentState prev = parent[current.first][current.second][currPref];
+        if (prev.x == -1 && prev.y == -1)
+            break;
+        currPref = prev.hasPref;
+        current = {prev.x, prev.y};
+    }
+    pathSequence.push_back(start);
+    pathContents.push_back(simulatemap[start.first][start.second]);
+    reverse(pathSequence.begin(), pathSequence.end());
+    reverse(pathContents.begin(), pathContents.end());
+
+    // Prepare output maps similar to your original code.
+    vector<vector<bool>> pathSpaces(rows, vector<bool>(cols, false));
+    vector<string> outputMap(rows, string(cols, ' '));
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < cols; j++)
+            if (simulatemap[i][j] == '#')
+                outputMap[i][j] = '#';
+
+    for (auto &p : pathSequence) {
+        int i = p.first, j = p.second;
+        if (isalpha(simulatemap[i][j]) || simulatemap[i][j] == '~' || simulatemap[i][j] == '#')
+            outputMap[i][j] = simulatemap[i][j];
+        else if (simulatemap[i][j] == ' ')
+            pathSpaces[i][j] = true;
+    }
+    outputMap[start.first][start.second] = 'S';
+    outputMap[end.first][end.second] = 'E';
+
+    cout << "\nRoute 0" << routeCount++ << " - ";
+    cout << "From [" << start.first << "," << start.second << "] to [" 
+         << end.first << "," << end.second << "] \n" << endl;
+
+    cout << "Sequence: \n";
+    for (size_t i = 0; i < pathSequence.size() - 1; i++) {
+        cout << "[" << pathSequence[i].first << "," << pathSequence[i].second << "] -> ";
+    }
+    cout << "[" << pathSequence.back().first << "," << pathSequence.back().second << "]\n" << endl;
+    
+    cout << "Tot. No. of PREFERRED TERRAIN explored = " << preferredTerrainCount << endl;
+    cout << "Tot. No. of grid area travelled (excluding 'S' and 'E') = " << dist[end.first][end.second][1] - 1 << endl;
+    
+    // Energy calculations (as in your original code)
+    cout << "Tot. Movt Enrg Reqd (Generic Veh) =\n";
+    bool first = true;
+    for (char c : pathContents) {
+        if (terrainData.count(c)) {
+            int energy = terrainData.at(c).movementEnergy;
+            totalMovementEnergy += energy;
+            if (!first) {
+                cout << " + ";
+            }
+            cout << (c == ' ' ? "[space]" : std::string(1, c));
+            cout << "(" << energy << ")";
+            first = false;
+        }
+    }
+    cout << " = " << totalMovementEnergy << "\n\n";
+    
+    cout << "Tot. Movt Enrg Reqd (" << tmpvehicleType << ") =\n";
+    first = true;
+    cout << totalMovementEnergy << " - ";
+    for (char c : pathContents) {
+        if ((terrainData.count(c) && tmpvehicleType == "HighLander") && (c == 'h' || c == 'M')) {
+            int energy = terrainData.at(c).movementEnergy * 0.5;
+            totalMovementEnergy -= energy;
+            if (!first) {
+                cout << " - ";
+            }
+            cout << (c == ' ' ? "[space]" : std::string(1, c)) << "(" << energy << ")";
+            first = false;
+        }
+        else if ((terrainData.count(c) && tmpvehicleType == "DragonFly") && (c == '~' || c == 'W' || c == 'w')) {
+            int energy = terrainData.at(c).movementEnergy * 0.5;
+            totalMovementEnergy -= energy;
+            if (!first) {
+                cout << " - ";
+            }
+            cout << (c == ' ' ? "[space]" : std::string(1, c)) << "(" << energy << ")";
+            first = false;
+        }
+        else if ((terrainData.count(c) && tmpvehicleType == "ShieldHero") && c == 'X') {
+            int energy = terrainData.at(c).movementEnergy * 0.5;
+            totalMovementEnergy -= energy;
+            if (!first) {
+                cout << " - ";
+            }
+            cout << (c == ' ' ? "[space]" : std::string(1, c)) << "(" << energy << ")";
+            first = false;
+        }
+    }
+    cout << " = " << totalMovementEnergy << "\n\n";
+    
+    cout << "    ";
+    for (int j = 0; j < cols; j++) {
+        if (j > 9)
+            cout << j << " ";
+        else
+            cout << " " << j << " ";
+    }
+    cout << endl;
+    
+    for (int i = 0; i < rows; i++) {
+        cout << setw(3) << i << " ";
+        for (int j = 0; j < cols; j++) {
+            cout << " ";
+            if (outputMap[i][j] == 'S' || outputMap[i][j] == 'E' ||
+                isalpha(outputMap[i][j]) || outputMap[i][j] == '~' || outputMap[i][j] == '#') {
+                cout << outputMap[i][j];
+            }
+            else if (pathSpaces[i][j]) {
+                cout << WHITE_BG << " " << RESET;
+            }
+            else {
+                cout << " ";
+            }
+            cout << " ";
+        }
+        cout << endl;
+    }
+    return dist[end.first][end.second][1];
+}
+
 
 void findAllPaths(vector<string> simulatemap, std::string &vehicleType) {
     int rows = simulatemap.size();
@@ -770,7 +987,7 @@ void SimulationMenu() { // third marking
   //printMap(presimulatemap); 
   //printMapWithCoordinates(presimulatemap);
   extractEveryThird(presimulatemap);
-  //printMap(simulatemap); 
+  printMap(simulatemap); 
   //findShortestPath(simulatemap);
   findAllPaths(simulatemap, VehicleType);
   //printCharacterLocations(simulatemap, 'S');
@@ -812,12 +1029,15 @@ void ConfigTerrExpSet() {
             break;
         case 'b':
             RouteReportFile = routereportQuestion();
+            ConfigTerrExpSet();
             break;
         case 'c':
             RouteCriteria = routecriteriaQuestion();
+            ConfigTerrExpSet();
             break;
         case 'd':
             VehicleType = vehicletypeQuestion();
+            ConfigTerrExpSet();
             break;
         case 'e':
             std::cout << "\nReturning to Main Menu..." << std::endl;
@@ -826,7 +1046,6 @@ void ConfigTerrExpSet() {
         default:
             std::cout << "\nInvalid choice. Please try again." << std::endl;
     }
-    ConfigTerrExpSet();
 }
 
 
